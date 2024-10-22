@@ -9473,7 +9473,12 @@ button.bg-dark:focus {
   }
 }
 
+
 @media (min-width: 1200px) {
+  .custom-padding {
+    padding-left: 140px; /* 根据需要调整值 */
+  }
+
   .text-xl-left {
     text-align: left !important;
   }
@@ -9481,6 +9486,7 @@ button.bg-dark:focus {
     text-align: right !important;
   }
   .text-xl-center {
+
     text-align: center !important;
   }
 }
@@ -9779,6 +9785,7 @@ a.text-dark:hover, a.text-dark:focus {
   .navbar-light .navbar-nav .nav-link {
     padding: 10px 15px;
   }
+  
 }
 
 .post-carousel .owl-nav {
@@ -9864,3 +9871,4 @@ a.text-dark:hover, a.text-dark:focus {
   padding: 0;
   list-style-type: none;
 }
+
