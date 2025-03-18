@@ -22,7 +22,20 @@ import {
   Badge,
   CircularProgress,
   Rating,
-  TextField
+  TextField,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  Collapse,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  ToggleButton,
+  ToggleButtonGroup,
+  AppBar,
+  Toolbar,
+  Tooltip,
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -40,6 +53,23 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import CommentIcon from '@mui/icons-material/Comment';
 import { useNavigate } from 'react-router-dom';
+import {
+  AccessTime,
+  CheckCircle,
+  HourglassEmpty,
+  CalendarToday,
+  ArrowForward,
+  VideoCall,
+  Timer,
+  ExpandMore as ExpandMoreIcon,
+  SupportAgent as SupportAgentIcon,
+  Close,
+  Brightness2,
+  WbSunny,
+  Brightness7,
+  Brightness5,
+  Brightness4,
+} from '@mui/icons-material';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: '20px',
@@ -86,6 +116,7 @@ const Profile = () => {
     message: '',
     severity: 'success'
   });
+  const [supportDialog, setSupportDialog] = useState(false);
 
   // 模拟课时数据
   const [courseHours, setCourseHours] = useState({
@@ -135,11 +166,61 @@ const Profile = () => {
     open: false,
     course: null
   });
-  
+
   const [ratingForm, setRatingForm] = useState({
     rating: 5,
     comment: ''
   });
+
+  // 添加状态管理
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+
+  // 获取未来7天的日期
+  const getWeekDates = () => {
+    const dates = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      dates.push(date);
+    }
+    return dates;
+  };
+
+  // 检查时间段是否可约（12小时限制）
+  const isTimeSlotBookable = (date, timeSlot) => {
+    const now = new Date();
+    const [hours, minutes] = timeSlot.split(':');
+    const slotTime = new Date(date);
+    slotTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    const diffHours = (slotTime - now) / (1000 * 60 * 60);
+    return diffHours >= 12;
+  };
+
+  // 模拟老师的可约时间段
+  const timeSlots = [
+    '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00', '19:00', '20:00'
+  ];
+
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+    setSelectedTimeSlot(null);
+  };
+
+  const handleTimeSlotSelect = (slot) => {
+    setSelectedTimeSlot(slot);
+  };
+
+  // 格式化日期显示
+  const formatDate = (date) => {
+    const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    return {
+      day: days[date.getDay()],
+      date: `${date.getMonth() + 1}月${date.getDate()}日`
+    };
+  };
 
   useEffect(() => {
     // 获取用户信息
@@ -196,20 +277,37 @@ const Profile = () => {
     });
   };
 
+  const handleContactSupport = () => {
+    setSupportDialog(true);
+  };
+
+  const handleCloseSupportDialog = () => {
+    setSupportDialog(false);
+  };
+
+  const handleCopyWechat = () => {
+    navigator.clipboard.writeText('kidnest022');
+    setSnackbar({
+      open: true,
+      message: '微信号已复制到剪贴板',
+      severity: 'success'
+    });
+  };
+
   const CourseHoursCard = ({ title, value, icon, color }) => (
-    <Card sx={{ 
+    <Card sx={{
       height: '100%',
       borderRadius: '20px',
       boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
       position: 'relative',
       overflow: 'visible'
     }}>
-      <CardContent sx={{ 
+      <CardContent sx={{
         textAlign: 'center',
         p: 3,
         '&:last-child': { pb: 3 }
       }}>
-        <Box sx={{ 
+        <Box sx={{
           position: 'absolute',
           top: -20,
           left: '50%',
@@ -281,16 +379,16 @@ const Profile = () => {
       }
       return course;
     });
-    
+
     // 更新状态
     setCourseHistory(updatedCourseHistory);
-    
+
     setSnackbar({
       open: true,
       message: '评价提交成功！',
       severity: 'success'
     });
-    
+
     handleCloseRating();
   };
 
@@ -303,239 +401,204 @@ const Profile = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Paper sx={{ p: 4, borderRadius: '20px', mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-          <Avatar
-            src={user.avatar}
-            sx={{
-              width: 100,
-              height: 100,
-              mr: 3,
-              border: '3px solid',
-              borderColor: user.role === 'teacher' ? '#2196f3' : '#4caf50'
-            }}
-          />
-          <Box>
-            <Typography variant="h4" gutterBottom>
-              {user.username}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {user.role === 'teacher' ? '教师' : '学生'}
+    <Container maxWidth="sm" sx={{ py: 2 }}>
+      {/* 课时统计 */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#2D5A27', fontWeight: 'bold' }}>
+          课时统计
+        </Typography>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottom: '1px solid #C5E6B0',
+          py: 2
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <SupportAgentIcon sx={{ color: '#2D5A27', fontSize: 20 }} />
+            <Typography variant="body1" sx={{ color: '#2D5A27' }}>
+              联系客服
             </Typography>
           </Box>
-        </Box>
-
-        {user.role === 'student' && (
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} md={4}>
-              <CourseHoursCard
-                title="总购买课时"
-                value={courseHours.total}
-                icon={<AccessTimeIcon sx={{ color: 'white' }} />}
-                color="#4caf50"
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <CourseHoursCard
-                title="已完成课时"
-                value={courseHours.completed}
-                icon={<CheckCircleIcon sx={{ color: 'white' }} />}
-                color="#2196f3"
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <CourseHoursCard
-                title="剩余课时"
-                value={courseHours.remaining}
-                icon={<HourglassEmptyIcon sx={{ color: 'white' }} />}
-                color="#ff9800"
-              />
-            </Grid>
-          </Grid>
-        )}
-
-        <Paper sx={{ p: 4, borderRadius: '20px', mb: 4 }}>
-          <Typography variant="h5" gutterBottom sx={{ 
-            mb: 3,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1
-          }}>
-            <LocalLibraryIcon sx={{ color: '#4caf50' }} />
-            上课记录
+          <Typography variant="body1" sx={{ color: '#2D5A27', fontWeight: 'bold' }}>
+            24h
           </Typography>
-
-          <Grid container spacing={3}>
-            {courseHistory.map((course) => (
-              <Grid item xs={12} key={course.id}>
-                <Card sx={{ 
-                  borderRadius: '15px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                  border: `1px solid ${languageColors[course.teacherType]}20`
-                }}>
-                  <CardContent>
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid item xs={12} sm={4}>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Avatar
-                            src={course.teacherAvatar}
-                            sx={{ 
-                              width: 60, 
-                              height: 60, 
-                              mr: 2,
-                              border: `2px solid ${languageColors[course.teacherType]}`
-                            }}
-                          />
-                          <Box>
-                            <Typography variant="h6">
-                              {course.teacherName}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {course.subject}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Grid>
-
-                      <Grid item xs={12} sm={3}>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">
-                            上课时间
-                          </Typography>
-                          <Typography variant="body1">
-                            {course.date}
-                          </Typography>
-                          <Typography variant="body1">
-                            {course.timeSlot}
-                          </Typography>
-                        </Box>
-                      </Grid>
-
-                      <Grid item xs={12} sm={3}>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary" gutterBottom>
-                            课程评分
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Rating value={course.rating} readOnly size="small" />
-                            <Typography variant="body2" color="text.secondary">
-                              ({course.rating}.0)
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Grid>
-
-                      <Grid item xs={12} sm={2}>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          onClick={() => handleOpenRating(course)}
-                          sx={{
-                            borderRadius: '20px',
-                            borderColor: languageColors[course.teacherType],
-                            color: languageColors[course.teacherType],
-                            '&:hover': {
-                              borderColor: languageColors[course.teacherType],
-                              bgcolor: `${languageColors[course.teacherType]}10`
-                            }
-                          }}
-                        >
-                          {course.hasRated ? '修改评价' : '评价课程'}
-                        </Button>
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <Box sx={{ 
-                          mt: 1, 
-                          pt: 2, 
-                          borderTop: '1px dashed #e0e0e0',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1
-                        }}>
-                          <CommentIcon sx={{ color: 'text.secondary', fontSize: '1rem' }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {course.comment}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Paper>
-
-        <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-          我的预约
-        </Typography>
-
-        {appointments.length > 0 ? (
-          <Grid container spacing={3}>
-            {appointments.map((appointment) => (
-              <Grid item xs={12} md={6} key={appointment.id}>
-                <Card sx={{ 
-                  borderRadius: '15px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                }}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Avatar
-                        src={appointment.teacherAvatar}
-                        sx={{ width: 50, height: 50, mr: 2 }}
-                      />
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6">
-                          {appointment.teacherName}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {appointment.subject}
-                        </Typography>
-                      </Box>
-                      <IconButton
-                        onClick={() => handleDeleteClick(appointment.id)}
-                        sx={{ color: '#ff5252' }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                    <Typography variant="body1" sx={{ mb: 1 }}>
-                      上课时间：{appointment.day} {appointment.timeSlot}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        ) : (
-          <Box sx={{ 
-            textAlign: 'center',
-            py: 4,
-            bgcolor: '#f5f5f5',
-            borderRadius: '10px'
-          }}>
-            <Typography variant="body1" color="text.secondary" gutterBottom>
-              暂无预约课程
+        </Box>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottom: '1px solid #C5E6B0',
+          py: 2
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <AccessTimeIcon sx={{ color: '#2D5A27', fontSize: 20 }} />
+            <Typography variant="body1" sx={{ color: '#2D5A27' }}>
+              总课时
             </Typography>
-            <Button
-              variant="contained"
-              onClick={() => navigate('/teachers')}
+          </Box>
+          <Typography variant="body1" sx={{ color: '#2D5A27', fontWeight: 'bold' }}>
+            {courseHours.total}
+          </Typography>
+        </Box>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottom: '1px solid #C5E6B0',
+          py: 2
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CheckCircleIcon sx={{ color: '#2D5A27', fontSize: 20 }} />
+            <Typography variant="body1" sx={{ color: '#2D5A27' }}>
+              已完成
+            </Typography>
+          </Box>
+          <Typography variant="body1" sx={{ color: '#2D5A27', fontWeight: 'bold' }}>
+            {courseHours.completed}
+          </Typography>
+        </Box>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          py: 2
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <HourglassEmptyIcon sx={{ color: '#2D5A27', fontSize: 20 }} />
+            <Typography variant="body1" sx={{ color: '#2D5A27' }}>
+              剩余
+            </Typography>
+          </Box>
+          <Typography variant="body1" sx={{ color: '#2D5A27', fontWeight: 'bold' }}>
+            {courseHours.remaining}
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* 我的预约 */}
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="h6" sx={{ color: '#2D5A27', fontWeight: 'bold' }}>
+            我的预约
+          </Typography>
+          <Button
+            endIcon={<ArrowForward />}
+            sx={{ color: '#2D5A27' }}
+          >
+            全部预约
+          </Button>
+        </Box>
+        <List sx={{ bgcolor: 'white' }}>
+          {appointments.map((appointment) => (
+            <Box
+              key={appointment.id}
               sx={{
-                mt: 2,
-                borderRadius: '20px',
-                bgcolor: '#4caf50',
-                '&:hover': {
-                  bgcolor: '#388e3c'
+                borderBottom: '1px solid #C5E6B0',
+                py: 2,
+                '&:last-child': {
+                  borderBottom: 'none'
                 }
               }}
             >
-              去预约课程
-            </Button>
-          </Box>
-        )}
-      </Paper>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Avatar
+                  src={appointment.teacherAvatar}
+                  sx={{ width: 32, height: 32, mr: 1.5 }}
+                />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle2" sx={{ color: '#2D5A27', fontWeight: 'bold' }}>
+                    {appointment.courseName}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#3A7434' }}>
+                    {appointment.teacherName}
+                  </Typography>
+                </Box>
+                <Button
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    bgcolor: '#2D5A27',
+                    '&:hover': { bgcolor: '#1F3F1C' },
+                    minWidth: 'auto',
+                    px: 2
+                  }}
+                >
+                  进入
+                </Button>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pl: 5.5 }}>
+                <CalendarToday sx={{ fontSize: 14, color: '#3A7434' }} />
+                <Typography variant="body2" sx={{ color: '#3A7434' }}>
+                  {appointment.dateTime}
+                </Typography>
+              </Box>
+            </Box>
+          ))}
+        </List>
+      </Box>
+
+      {/* 我的课程 */}
+      <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="h6" sx={{ color: '#2D5A27', fontWeight: 'bold' }}>
+            我的课程
+          </Typography>
+          <Button
+            endIcon={<ArrowForward />}
+            sx={{ color: '#2D5A27' }}
+          >
+            全部课程
+          </Button>
+        </Box>
+        <List>
+          {courseHistory.map((course) => (
+            <Box
+              key={course.id}
+              onClick={() => handleOpenRating(course)}
+              sx={{
+                borderBottom: '1px solid #C5E6B0',
+                py: 2,
+                '&:last-child': {
+                  borderBottom: 'none'
+                }
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Avatar
+                  src={course.teacherAvatar}
+                  sx={{ width: 32, height: 32, mr: 1.5 }}
+                />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle2" sx={{ color: '#2D5A27', fontWeight: 'bold' }}>
+                    {course.subject}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#3A7434' }}>
+                    {course.teacherName}
+                  </Typography>
+                </Box>
+                <Rating
+                  value={course.rating}
+                  readOnly
+                  size="small"
+                  sx={{
+                    fontSize: '0.75rem',
+                    '& .MuiRating-icon': {
+                      color: '#2D5A27'
+                    }
+                  }}
+                />
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pl: 5.5 }}>
+                <CalendarToday sx={{ fontSize: 14, color: '#3A7434' }} />
+                <Typography variant="body2" sx={{ color: '#3A7434' }}>
+                  {course.date}
+                </Typography>
+              </Box>
+            </Box>
+          ))}
+        </List>
+      </Box>
 
       <Dialog
         open={openDialog}
@@ -551,87 +614,146 @@ const Profile = () => {
       >
         {selectedAppointment && (
           <>
-            <DialogTitle sx={{ 
+            <DialogTitle sx={{
               textAlign: 'center',
-              color: '#2e7d32',
-              fontWeight: 'bold'
+              color: '#2D5A27',
+              fontWeight: 'bold',
+              pb: 1
             }}>
-              课程详情
+              预约课程
             </DialogTitle>
             <DialogContent>
-              <Box sx={{ 
-                display: 'flex', 
+              <Box sx={{
+                display: 'flex',
                 alignItems: 'center',
                 mb: 3,
                 pb: 2,
-                borderBottom: '1px dashed #e0e0e0'
+                borderBottom: '1px solid #C5E6B0'
               }}>
                 <Avatar
                   src={selectedAppointment.teacherAvatar}
-                  sx={{ width: 60, height: 60, mr: 2 }}
+                  sx={{ width: 48, height: 48, mr: 2 }}
                 />
                 <Box>
-                  <Typography variant="h6">
+                  <Typography variant="h6" sx={{ color: '#2D5A27', fontWeight: 'bold' }}>
                     {selectedAppointment.teacherName}
                   </Typography>
-                  <Typography variant="subtitle1" color="text.secondary">
-                    {selectedAppointment.subject}
+                  <Typography variant="body2" sx={{ color: '#3A7434' }}>
+                    {selectedAppointment.courseName}
                   </Typography>
                 </Box>
               </Box>
 
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom sx={{ color: '#2e7d32' }}>
-                  上课时间
-                </Typography>
-                <Typography variant="body1">
-                  {selectedAppointment.day} {selectedAppointment.timeSlot}
-                </Typography>
+              {/* 日期选择 */}
+              <Typography variant="subtitle1" sx={{ mb: 1, color: '#2D5A27', fontWeight: 'bold' }}>
+                选择上课日期
+              </Typography>
+              <Box sx={{ mb: 3, display: 'flex', gap: 1, overflowX: 'auto', pb: 1 }}>
+                {getWeekDates().map((date) => {
+                  const formattedDate = formatDate(date);
+                  return (
+                    <ToggleButton
+                      key={date.toISOString()}
+                      value={date}
+                      selected={selectedDate && selectedDate.getDate() === date.getDate()}
+                      onChange={() => handleDateSelect(date)}
+                      sx={{
+                        minWidth: 80,
+                        borderRadius: 2,
+                        border: '1px solid #C5E6B0',
+                        '&.Mui-selected': {
+                          bgcolor: 'rgba(45, 90, 39, 0.1)',
+                          borderColor: '#2D5A27',
+                          color: '#2D5A27',
+                        },
+                        flexDirection: 'column',
+                        p: 1
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ mb: 0.5 }}>
+                        {formattedDate.day}
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                        {formattedDate.date}
+                      </Typography>
+                    </ToggleButton>
+                  );
+                })}
               </Box>
 
-              {selectedAppointment.classIn && (
-                <Paper sx={{ p: 2, bgcolor: '#f1f8e9', borderRadius: '15px' }}>
-                  <Typography variant="subtitle1" gutterBottom sx={{ color: '#2e7d32' }}>
-                    教室信息
+              {/* 时间段选择 */}
+              {selectedDate && (
+                <>
+                  <Typography variant="subtitle1" sx={{ mb: 1, color: '#2D5A27', fontWeight: 'bold' }}>
+                    选择上课时间
                   </Typography>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="body1" sx={{ mr: 1 }}>
-                      教室号：{selectedAppointment.classIn.classroomId}
-                    </Typography>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleCopyClassroomId(selectedAppointment.classIn.classroomId)}
-                    >
-                      <ContentCopyIcon fontSize="small" />
-                    </IconButton>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
+                    {timeSlots.map((slot) => {
+                      const isBookable = isTimeSlotBookable(selectedDate, slot);
+                      return (
+                        <ToggleButton
+                          key={slot}
+                          value={slot}
+                          selected={selectedTimeSlot === slot}
+                          onChange={() => handleTimeSlotSelect(slot)}
+                          disabled={!isBookable}
+                          sx={{
+                            minWidth: 90,
+                            borderRadius: 2,
+                            border: '1px solid #C5E6B0',
+                            '&.Mui-selected': {
+                              bgcolor: 'rgba(45, 90, 39, 0.1)',
+                              borderColor: '#2D5A27',
+                              color: '#2D5A27',
+                            },
+                            '&.Mui-disabled': {
+                              bgcolor: '#f5f5f5',
+                              color: '#bdbdbd',
+                            }
+                          }}
+                        >
+                          {slot}
+                        </ToggleButton>
+                      );
+                    })}
                   </Box>
-
-                  <Button
-                    variant="contained"
-                    href={selectedAppointment.classIn.link}
-                    target="_blank"
-                    sx={{
-                      mt: 1,
-                      borderRadius: '15px',
-                      background: 'linear-gradient(45deg, #4caf50 30%, #81c784 90%)',
-                    }}
-                  >
-                    进入教室
-                  </Button>
-
-                  <Typography variant="body2" sx={{ mt: 2, color: '#666' }}>
-                    温馨提示：请提前5分钟进入教室，确保设备和网络正常哦～
-                  </Typography>
-                </Paper>
+                </>
               )}
+
+              <Typography variant="body2" sx={{ color: '#666', mt: 2 }}>
+                温馨提示：
+                <br />
+                1. 课程需要提前12小时预约
+                <br />
+                2. 如需取消课程，请提前24小时操作
+                <br />
+                3. 请准时参加课程，迟到超过10分钟将被视为缺课
+              </Typography>
             </DialogContent>
-            <DialogActions>
+            <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
               <Button
                 onClick={handleCloseDialog}
-                sx={{ borderRadius: '15px' }}
+                sx={{
+                  color: '#2D5A27',
+                  borderRadius: '20px',
+                  mr: 1
+                }}
               >
-                关闭
+                取消
+              </Button>
+              <Button
+                variant="contained"
+                disabled={!selectedDate || !selectedTimeSlot}
+                sx={{
+                  borderRadius: '20px',
+                  bgcolor: '#2D5A27',
+                  '&:hover': { bgcolor: '#1F3F1C' },
+                  '&.Mui-disabled': {
+                    bgcolor: '#C5E6B0',
+                  }
+                }}
+              >
+                确认预约
               </Button>
             </DialogActions>
           </>
@@ -649,15 +771,15 @@ const Profile = () => {
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button 
+          <Button
             onClick={() => setDeleteDialog({ open: false, appointmentId: null })}
             sx={{ borderRadius: '20px' }}
           >
             返回
           </Button>
-          <Button 
+          <Button
             onClick={handleDeleteConfirm}
-            variant="contained" 
+            variant="contained"
             color="error"
             sx={{ borderRadius: '20px' }}
           >
@@ -680,7 +802,7 @@ const Profile = () => {
       >
         {ratingDialog.course && (
           <>
-            <DialogTitle sx={{ 
+            <DialogTitle sx={{
               textAlign: 'center',
               color: '#2e7d32',
               fontWeight: 'bold'
@@ -688,8 +810,8 @@ const Profile = () => {
               课程评价
             </DialogTitle>
             <DialogContent>
-              <Box sx={{ 
-                display: 'flex', 
+              <Box sx={{
+                display: 'flex',
                 alignItems: 'center',
                 mb: 3,
                 pb: 2,
@@ -697,9 +819,9 @@ const Profile = () => {
               }}>
                 <Avatar
                   src={ratingDialog.course.teacherAvatar}
-                  sx={{ 
-                    width: 60, 
-                    height: 60, 
+                  sx={{
+                    width: 60,
+                    height: 60,
                     mr: 2,
                     border: `2px solid ${languageColors[ratingDialog.course.teacherType]}`
                   }}
@@ -721,8 +843,8 @@ const Profile = () => {
                 <Typography variant="subtitle1" gutterBottom sx={{ color: '#2e7d32' }}>
                   课程评分
                 </Typography>
-                <Box sx={{ 
-                  display: 'flex', 
+                <Box sx={{
+                  display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexDirection: 'column',
@@ -788,14 +910,91 @@ const Profile = () => {
         )}
       </Dialog>
 
+      {/* 客服对话框 */}
+      <Dialog
+        open={supportDialog}
+        onClose={handleCloseSupportDialog}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '20px',
+            padding: '16px',
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          textAlign: 'center',
+          color: '#2D5A27',
+          fontWeight: 'bold',
+          pb: 1
+        }}>
+          联系客服
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 2,
+            py: 2
+          }}>
+            <SupportAgentIcon sx={{ fontSize: 48, color: '#2D5A27' }} />
+            <Typography variant="h6" sx={{ color: '#2D5A27', fontWeight: 'bold' }}>
+              客服微信
+            </Typography>
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              bgcolor: 'rgba(197, 230, 176, 0.2)',
+              p: 2,
+              borderRadius: 2,
+              width: '100%',
+              justifyContent: 'center'
+            }}>
+              <Typography variant="h6" sx={{ color: '#2D5A27' }}>
+                kidnest022
+              </Typography>
+              <IconButton
+                onClick={handleCopyWechat}
+                size="small"
+                sx={{ color: '#2D5A27' }}
+              >
+                <ContentCopyIcon />
+              </IconButton>
+            </Box>
+            <Typography variant="body2" sx={{ color: '#666', textAlign: 'center' }}>
+              工作时间：周一至周日 9:00-21:00
+              <br />
+              您可以添加客服微信咨询任何问题
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
+          <Button
+            onClick={handleCloseSupportDialog}
+            variant="contained"
+            sx={{
+              borderRadius: '20px',
+              bgcolor: '#2D5A27',
+              '&:hover': { bgcolor: '#1F3F1C' },
+              minWidth: 120
+            }}
+          >
+            关闭
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
           sx={{ width: '100%' }}
         >

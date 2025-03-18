@@ -23,11 +23,12 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  CircularProgress
+  CircularProgress,
+  Avatar
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-import { Visibility, VisibilityOff, Email, Person, Lock, School, EmojiObjects, Close, Refresh } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Email, Person, Lock, School, EmojiObjects, Close, Refresh, QrCode2, LockOutlined } from '@mui/icons-material';
 
 // 微信登录配置
 const WECHAT_APP_ID = 'your_wechat_app_id'; // 替换为您的微信应用ID
@@ -99,6 +100,20 @@ const Login = () => {
 
   const theme = useTheme();
 
+  // 更新配色方案，加深文字颜色
+  const childFriendlyColors = {
+    primary: '#C5E6B0',     // 清新的浅绿色
+    secondary: '#9DC88D',   // 深一点的绿色
+    accent: '#E6D7B0',      // 温暖的米色
+    text: '#2D5A27',        // 更深的绿色文字
+    lightText: '#3A7434',   // 深绿色次要文字
+    success: '#B8E6B0',     // 柔和的绿色
+    error: '#E6B0B0',       // 柔和的红色
+    background: '#F7FAF5',  // 浅绿色背景
+    buttonHover: '#B8D9A3', // 按钮悬停色
+    secondaryHover: '#8CB87D' // 次要按钮悬停色
+  };
+
   // 加载微信 JS SDK
   useEffect(() => {
     const loadWechatScript = () => {
@@ -126,7 +141,7 @@ const Login = () => {
           state: 'random_state',
         }),
       });
-      
+
       const data = await response.json();
       setQrUrl(data.qrUrl);
       startPolling(data.state);
@@ -154,7 +169,7 @@ const Login = () => {
           },
           body: JSON.stringify({ state }),
         });
-        
+
         const data = await response.json();
         if (data.logged_in) {
           clearInterval(pollInterval);
@@ -186,7 +201,7 @@ const Login = () => {
       role: loginForm.role,
       avatar: data.headimgurl
     }));
-    
+
     setSnackbar({
       open: true,
       message: '微信登录成功！',
@@ -243,7 +258,7 @@ const Login = () => {
       role: loginForm.role,
       avatar: 'https://randomuser.me/api/portraits/lego/1.jpg'
     };
-    
+
     if (rememberMe) {
       localStorage.setItem('rememberedUser', JSON.stringify({
         username: loginForm.username,
@@ -252,7 +267,7 @@ const Login = () => {
     }
 
     localStorage.setItem('user', JSON.stringify(userInfo));
-    
+
     setSnackbar({
       open: true,
       message: '登录成功！',
@@ -324,59 +339,22 @@ const Login = () => {
 
   return (
     <>
-      <Container maxWidth="sm" sx={{ 
-        mt: 4, 
+      <Container maxWidth="sm" sx={{
+        mt: 4,
         mb: 4,
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        bgcolor: childFriendlyColors.background
       }}>
-        <Box sx={{ 
-          textAlign: 'center', 
-          mb: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}>
-          <EmojiObjects sx={{ 
-            fontSize: 60, 
-            color: '#4caf50',
-            mb: 2
-          }} />
-          <Typography 
-            variant="h3" 
-            component="h1"
-            sx={{ 
-              fontWeight: 'bold',
-              background: 'linear-gradient(45deg, #4caf50 30%, #2196f3 90%)',
-              backgroundClip: 'text',
-              textFillColor: 'transparent',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              mb: 1
-            }}
-          >
-            趣味学习平台
-          </Typography>
-          <Typography 
-            variant="h5"
-            sx={{ 
-              color: 'text.secondary',
-              fontWeight: 500
-            }}
-          >
-            让学习更有趣
-          </Typography>
-        </Box>
-
-        <Paper 
-          elevation={6} 
-          sx={{ 
-            p: 4, 
+        <Paper
+          elevation={6}
+          sx={{
+            p: 4,
             borderRadius: '24px',
-            bgcolor: 'background.paper',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+            bgcolor: 'white',
+            boxShadow: '0 8px 32px rgba(197,230,176,0.2)',
             position: 'relative',
             overflow: 'hidden',
             '&::before': {
@@ -386,7 +364,7 @@ const Login = () => {
               left: 0,
               right: 0,
               height: '4px',
-              background: 'linear-gradient(45deg, #4caf50 30%, #2196f3 90%)',
+              background: childFriendlyColors.primary,
             }
           }}
         >
@@ -394,19 +372,21 @@ const Login = () => {
             value={isLogin ? 0 : 1}
             onChange={(e, newValue) => setIsLogin(newValue === 0)}
             centered
-            sx={{ 
+            sx={{
               mb: 4,
               '& .MuiTab-root': {
                 fontSize: '1.1rem',
-                fontWeight: 500,
+                fontWeight: 600,
                 minWidth: 120,
-                textTransform: 'none'
+                textTransform: 'none',
+                color: childFriendlyColors.lightText,
+                fontFamily: '"Comic Sans MS", "Comic Sans", cursive'
               },
               '& .Mui-selected': {
-                color: '#4caf50'
+                color: childFriendlyColors.primary
               },
               '& .MuiTabs-indicator': {
-                backgroundColor: '#4caf50',
+                backgroundColor: childFriendlyColors.primary,
                 height: 3,
                 borderRadius: '3px'
               }
@@ -434,6 +414,26 @@ const Login = () => {
                       <Person />
                     </InputAdornment>
                   ),
+                }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    color: childFriendlyColors.lightText,
+                    fontWeight: 500
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: childFriendlyColors.primary
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: childFriendlyColors.text
+                  },
+                  '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+                    color: childFriendlyColors.text
+                  },
+                  '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: childFriendlyColors.secondary
+                  }
                 }}
               />
 
@@ -464,6 +464,20 @@ const Login = () => {
                       </IconButton>
                     </InputAdornment>
                   ),
+                }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    color: childFriendlyColors.lightText,
+                    fontWeight: 500
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: childFriendlyColors.primary
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: childFriendlyColors.text
+                  }
                 }}
               />
 
@@ -504,17 +518,20 @@ const Login = () => {
                   borderRadius: '12px',
                   padding: '12px',
                   fontSize: '1.1rem',
-                  fontWeight: 500,
+                  fontWeight: 600,
                   textTransform: 'none',
-                  background: 'linear-gradient(45deg, #4caf50 30%, #2196f3 90%)',
-                  boxShadow: '0 3px 12px rgba(76, 175, 80, 0.3)',
+                  bgcolor: childFriendlyColors.primary,
+                  color: childFriendlyColors.text,
+                  boxShadow: '0 3px 12px rgba(197,230,176,0.3)',
+                  fontFamily: '"Comic Sans MS", "Comic Sans", cursive',
                   '&:hover': {
-                    background: 'linear-gradient(45deg, #388e3c 30%, #1976d2 90%)',
-                    boxShadow: '0 4px 16px rgba(76, 175, 80, 0.4)',
+                    bgcolor: childFriendlyColors.buttonHover,
+                    boxShadow: '0 4px 16px rgba(197,230,176,0.4)',
                   }
+
                 }}
               >
-                登录
+                {isLogin ? '登录' : '注册'}
               </Button>
 
               <Box sx={{ mt: 2, textAlign: 'center' }}>
@@ -523,20 +540,22 @@ const Login = () => {
                 </Typography>
                 <Button
                   variant="outlined"
-                  startIcon={<WechatIcon />}
+                  fullWidth
+                  startIcon={<QrCode2 />}
                   onClick={handleWechatLogin}
                   sx={{
-                    borderRadius: '12px',
-                    padding: '8px 24px',
-                    color: '#07C160',
-                    borderColor: '#07C160',
+                    mt: 2,
+                    color: childFriendlyColors.secondary,
+                    borderColor: childFriendlyColors.secondary,
+                    fontWeight: 600,
                     '&:hover': {
-                      borderColor: '#07C160',
-                      backgroundColor: 'rgba(7, 193, 96, 0.04)',
+                      borderColor: childFriendlyColors.secondaryHover,
+                      bgcolor: `${childFriendlyColors.secondary}10`,
+
                     }
                   }}
                 >
-                  微信登录
+                  微信{isLogin ? '登录' : '注册'}
                 </Button>
               </Box>
             </form>
@@ -559,6 +578,26 @@ const Login = () => {
                     </InputAdornment>
                   ),
                 }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    color: childFriendlyColors.lightText,
+                    fontWeight: 500
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: childFriendlyColors.primary
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: childFriendlyColors.text
+                  },
+                  '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+                    color: childFriendlyColors.text
+                  },
+                  '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: childFriendlyColors.secondary
+                  }
+                }}
               />
 
               <TextField
@@ -578,6 +617,26 @@ const Login = () => {
                       <Email />
                     </InputAdornment>
                   ),
+                }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    color: childFriendlyColors.lightText,
+                    fontWeight: 500
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: childFriendlyColors.primary
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: childFriendlyColors.text
+                  },
+                  '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+                    color: childFriendlyColors.text
+                  },
+                  '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: childFriendlyColors.secondary
+                  }
                 }}
               />
 
@@ -609,6 +668,26 @@ const Login = () => {
                     </InputAdornment>
                   ),
                 }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    color: childFriendlyColors.lightText,
+                    fontWeight: 500
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: childFriendlyColors.primary
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: childFriendlyColors.text
+                  },
+                  '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+                    color: childFriendlyColors.text
+                  },
+                  '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: childFriendlyColors.secondary
+                  }
+                }}
               />
 
               <TextField
@@ -639,6 +718,26 @@ const Login = () => {
                     </InputAdornment>
                   ),
                 }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    color: childFriendlyColors.lightText,
+                    fontWeight: 500
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': {
+                      borderColor: childFriendlyColors.primary
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: childFriendlyColors.text
+                  },
+                  '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+                    color: childFriendlyColors.text
+                  },
+                  '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: childFriendlyColors.secondary
+                  }
+                }}
               />
 
               <FormControl fullWidth sx={{ mt: 2 }}>
@@ -664,17 +763,22 @@ const Login = () => {
                   borderRadius: '12px',
                   padding: '12px',
                   fontSize: '1.1rem',
-                  fontWeight: 500,
+                  fontWeight: 600,
                   textTransform: 'none',
-                  background: 'linear-gradient(45deg, #4caf50 30%, #2196f3 90%)',
-                  boxShadow: '0 3px 12px rgba(76, 175, 80, 0.3)',
+                  bgcolor: childFriendlyColors.primary,
+                  color: childFriendlyColors.text,
+                  boxShadow: '0 3px 12px rgba(197,230,176,0.3)',
+                  fontFamily: '"Comic Sans MS", "Comic Sans", cursive',
                   '&:hover': {
-                    background: 'linear-gradient(45deg, #388e3c 30%, #1976d2 90%)',
-                    boxShadow: '0 4px 16px rgba(76, 175, 80, 0.4)',
+                    bgcolor: childFriendlyColors.buttonHover,
+                    boxShadow: '0 4px 16px rgba(197,230,176,0.4)',
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: childFriendlyColors.text
                   }
                 }}
               >
-                注册
+                {isLogin ? '登录' : '注册'}
               </Button>
 
               <Box sx={{ mt: 2, textAlign: 'center' }}>
@@ -683,41 +787,60 @@ const Login = () => {
                 </Typography>
                 <Button
                   variant="outlined"
-                  startIcon={<WechatIcon />}
+                  fullWidth
+                  startIcon={<QrCode2 />}
                   onClick={handleWechatLogin}
                   sx={{
-                    borderRadius: '12px',
-                    padding: '8px 24px',
-                    color: '#07C160',
-                    borderColor: '#07C160',
+                    mt: 2,
+                    color: childFriendlyColors.secondary,
+                    borderColor: childFriendlyColors.secondary,
+                    fontWeight: 600,
                     '&:hover': {
-                      borderColor: '#07C160',
-                      backgroundColor: 'rgba(7, 193, 96, 0.04)',
+                      borderColor: childFriendlyColors.secondaryHover,
+                      bgcolor: `${childFriendlyColors.secondary}10`,
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: childFriendlyColors.text
                     }
                   }}
                 >
-                  微信注册
+                  微信{isLogin ? '登录' : '注册'}
                 </Button>
               </Box>
             </form>
           )}
 
           <Divider sx={{ my: 2 }} />
-          
-          <Box sx={{ textAlign: 'center', mt: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {isLogin ? '还没有账号？' : '已有账号？'}
-              <Button
-                color="primary"
-                onClick={() => {
-                  setIsLogin(!isLogin);
-                  setErrors({});
-                }}
-              >
-                {isLogin ? '立即注册' : '立即登录'}
-              </Button>
-            </Typography>
-          </Box>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: childFriendlyColors.text,
+              fontWeight: 500,
+              textAlign: 'center',
+              mt: 2,
+              '& .MuiButton-root': {
+                color: childFriendlyColors.text
+              }
+            }}
+          >
+            {isLogin ? '还没有账号？' : '已有账号？'}
+            <Button
+              sx={{
+                color: childFriendlyColors.primary,
+                fontWeight: 600,
+                '&:hover': {
+                  bgcolor: `${childFriendlyColors.primary}10`,
+                }
+              }}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setErrors({});
+              }}
+            >
+              {isLogin ? '立即注册' : '立即登录'}
+            </Button>
+          </Typography>
         </Paper>
 
         <Box sx={{ textAlign: 'center', mt: 3 }}>
@@ -732,13 +855,27 @@ const Login = () => {
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          <Alert 
-            onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          <Alert
             severity={snackbar.severity}
-            sx={{ 
+            sx={{
               width: '100%',
               borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              fontWeight: 500,
+              '&.MuiAlert-standardSuccess': {
+                bgcolor: childFriendlyColors.success,
+                color: childFriendlyColors.text
+              },
+              '&.MuiAlert-standardError': {
+                bgcolor: childFriendlyColors.error,
+                color: childFriendlyColors.text
+              },
+              '& .MuiAlert-message': {
+                color: childFriendlyColors.text
+              },
+              '& .MuiSvgIcon-root': {
+                color: childFriendlyColors.text
+              }
             }}
           >
             {snackbar.message}
@@ -754,33 +891,35 @@ const Login = () => {
         PaperProps={{
           sx: {
             borderRadius: '24px',
-            padding: '16px'
+            padding: '16px',
+            bgcolor: childFriendlyColors.background
           }
         }}
       >
-        <DialogTitle sx={{ 
+        <DialogTitle sx={{
           textAlign: 'center',
           pb: 1,
           pt: 2,
-          position: 'relative'
+          position: 'relative',
+          color: childFriendlyColors.text,
+          fontFamily: '"Comic Sans MS", "Comic Sans", cursive',
+          fontWeight: 600,
+          '& .MuiSvgIcon-root': {
+            color: childFriendlyColors.text
+          }
         }}>
-          微信扫码{isLogin ? '登录' : '注册'}
-          <CloseButton
-            aria-label="close"
-            onClick={handleCloseQrDialog}
-          >
-            <Close />
-          </CloseButton>
+          <QrCode2 sx={{ fontSize: 40, color: childFriendlyColors.secondary, mb: 2 }} />
+          <Typography variant="h5">微信扫码{isLogin ? '登录' : '注册'}</Typography>
         </DialogTitle>
-        <DialogContent sx={{ 
-          display: 'flex', 
+        <DialogContent sx={{
+          display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          pb: 4 
+          pb: 4
         }}>
           <QRCodeBox>
             {qrLoading ? (
-              <CircularProgress size={40} sx={{ color: '#07C160' }} />
+              <CircularProgress size={40} sx={{ color: childFriendlyColors.secondary }} />
             ) : qrExpired ? (
               <Box sx={{ textAlign: 'center' }}>
                 <Typography color="error" gutterBottom>
@@ -789,14 +928,14 @@ const Login = () => {
                 <Button
                   startIcon={<Refresh />}
                   onClick={handleRefreshQrCode}
-                  sx={{ color: '#07C160' }}
+                  sx={{ color: childFriendlyColors.secondary }}
                 >
                   刷新二维码
                 </Button>
               </Box>
             ) : (
-              <img 
-                src={qrUrl} 
+              <img
+                src={qrUrl}
                 alt="微信二维码"
                 style={{
                   width: '180px',
@@ -806,15 +945,15 @@ const Login = () => {
               />
             )}
           </QRCodeBox>
-          <Typography 
-            variant="body1" 
+          <Typography
+            variant="body1"
             color="text.secondary"
             sx={{ mt: 2, textAlign: 'center' }}
           >
             请使用微信扫描二维码{isLogin ? '登录' : '注册'}
           </Typography>
-          <Typography 
-            variant="body2" 
+          <Typography
+            variant="body2"
             color="text.secondary"
             sx={{ mt: 1, textAlign: 'center' }}
           >

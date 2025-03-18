@@ -93,7 +93,7 @@ const Layout = ({ children }) => {
               sx={{ flexGrow: 1, cursor: 'pointer' }}
               onClick={() => navigate('/')}
             >
-              趣味学习平台
+              KidNest童巢外语
             </Typography>
 
             <Box sx={{ flexGrow: 0 }}>
