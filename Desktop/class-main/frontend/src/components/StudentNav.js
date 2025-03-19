@@ -50,9 +50,10 @@ const StudentNav = () => {
     >
       <Box sx={{ 
         display: 'flex', 
-        justifyContent: 'center', 
-        gap: 2,
-        flexWrap: 'wrap'
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 2
       }}>
         <StyledButton
           startIcon={<HomeIcon />}

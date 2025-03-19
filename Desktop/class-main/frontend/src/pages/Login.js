@@ -63,8 +63,16 @@ const Login = () => {
     try {
       const response = await login(formData);
       setSuccess('登录成功');
-      localStorage.setItem('user', JSON.stringify(response.user));
+      
+      // 确保用户信息包含头像
+      const userInfo = {
+        ...response.user,
+        avatar: response.user.avatar || 'https://randomuser.me/api/portraits/men/1.jpg'
+      };
+      
+      localStorage.setItem('user', JSON.stringify(userInfo));
       localStorage.setItem('token', response.token);
+      
       setTimeout(() => {
         // 根据用户角色跳转到不同页面
         if (response.user.role === 'teacher') {

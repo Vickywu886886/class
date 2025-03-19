@@ -132,48 +132,14 @@ const Layout = ({ children }) => {
               <Avatar
                 alt={user?.username}
                 src={user?.avatar}
-                onClick={handleOpenUserMenu}
                 sx={{ 
                   width: 40,
                   height: 40,
                   bgcolor: user?.role === 'teacher' ? '#2196f3' : '#81c784',
                   border: '2px solid',
-                  borderColor: user?.role === 'teacher' ? '#2196f3' : '#4caf50',
-                  cursor: 'pointer'
+                  borderColor: user?.role === 'teacher' ? '#2196f3' : '#4caf50'
                 }}
               />
-              {user && (
-                <>
-                  <input
-                    accept="image/*"
-                    type="file"
-                    id="layout-avatar-upload"
-                    onChange={handleAvatarChange}
-                    style={{ display: 'none' }}
-                  />
-                  <label htmlFor="layout-avatar-upload">
-                    <IconButton
-                      component="span"
-                      size="small"
-                      onClick={(e) => e.stopPropagation()}
-                      sx={{
-                        position: 'absolute',
-                        right: -8,
-                        bottom: -8,
-                        bgcolor: user.role === 'teacher' ? '#2196f3' : '#4caf50',
-                        color: 'white',
-                        width: 24,
-                        height: 24,
-                        '&:hover': {
-                          bgcolor: user.role === 'teacher' ? '#1976d2' : '#45a049'
-                        }
-                      }}
-                    >
-                      <PhotoCameraIcon sx={{ fontSize: 16 }} />
-                    </IconButton>
-                  </label>
-                </>
-              )}
             </Box>
 
             <Typography variant="h6" noWrap component="div" sx={{ 
@@ -184,7 +150,28 @@ const Layout = ({ children }) => {
               fontWeight: 600
             }}>
               {user ? (
-                <>{user.username}</>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {user.username}
+                  <Button
+                    startIcon={<LogoutIcon />}
+                    onClick={handleLogout}
+                    sx={{
+                      textTransform: 'none',
+                      color: '#2e7d32',
+                      '&:hover': {
+                        backgroundColor: 'rgba(46, 125, 50, 0.08)',
+                      },
+                      padding: '4px 12px',
+                      minWidth: 'auto',
+                      '& .MuiSvgIcon-root': {
+                        marginRight: '4px',
+                        fontSize: '20px'
+                      }
+                    }}
+                  >
+                    退出
+                  </Button>
+                </Box>
               ) : (
                 <>KidNest童巢优课</>
               )}
@@ -192,54 +179,7 @@ const Layout = ({ children }) => {
 
             <Box sx={{ flexGrow: 0 }}>
               {user ? (
-                <>
-                  <Menu
-                    anchorEl={anchorElUser}
-                    open={Boolean(anchorElUser)}
-                    onClose={handleCloseUserMenu}
-                    sx={{
-                      '& .MuiPaper-root': {
-                        width: '80vw',
-                        maxWidth: '300px',
-                        boxSizing: 'border-box',
-                        bgcolor: 'background.paper',
-                        boxShadow: '4px 0 8px rgba(0, 0, 0, 0.1)'
-                      }
-                    }}
-                  >
-                    <Box sx={{ 
-                      height: '100%',
-                      width: '100%',
-                      display: 'flex', 
-                      flexDirection: 'column',
-                      p: 3
-                    }}>
-                      <Box sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'flex-end',
-                        mb: 2
-                      }}>
-                        <IconButton onClick={handleCloseUserMenu}>
-                          <CloseIcon />
-                        </IconButton>
-                      </Box>
-                      <MenuItem 
-                        onClick={handleLogout}
-                        sx={{
-                          py: 3,
-                          px: 4,
-                          borderRadius: 2,
-                          color: '#f44336',
-                          '&:hover': {
-                            bgcolor: 'rgba(244, 67, 54, 0.08)'
-                          }
-                        }}
-                      >
-                        <LogoutIcon sx={{ mr: 2 }} /> 退出登录
-                      </MenuItem>
-                    </Box>
-                  </Menu>
-                </>
+                <></>
               ) : (
                 <Button
                   variant="outlined"

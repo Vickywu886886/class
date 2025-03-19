@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 from models.user import User
 from extensions import db
+from flask_jwt_extended import jwt_required
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -65,6 +66,34 @@ def login():
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "role": user.role
+            "role": user.role,
+            "avatar": user.avatar or "https://randomuser.me/api/portraits/men/1.jpg"
+        }
+    }), 200
+
+@auth_bp.route('/update-avatar', methods=['POST'])
+@jwt_required()
+def update_avatar():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    data = request.get_json()
+    if 'avatar' not in data:
+        return jsonify({"message": "Avatar data is required"}), 400
+    
+    user.avatar = data['avatar']
+    db.session.commit()
+    
+    return jsonify({
+        "message": "Avatar updated successfully",
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "avatar": user.avatar
         }
     }), 200 
