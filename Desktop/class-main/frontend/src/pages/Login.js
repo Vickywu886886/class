@@ -66,7 +66,16 @@ const Login = () => {
       localStorage.setItem('user', JSON.stringify(response.user));
       localStorage.setItem('token', response.token);
       setTimeout(() => {
-        navigate('/');
+        // 根据用户角色跳转到不同页面
+        if (response.user.role === 'teacher') {
+          navigate('/teacher-profile');
+        } else if (response.user.role === 'student') {
+          navigate('/student/dashboard');
+        } else if (response.user.role === 'admin') {
+          navigate('/admin/dashboard');
+        } else {
+          navigate('/');
+        }
       }, 1000);
     } catch (err) {
       setError('账号或密码错误');
