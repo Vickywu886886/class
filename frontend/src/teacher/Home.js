@@ -76,6 +76,16 @@ const notifications = [
 const TeacherHome = () => {
   const [openProfile, setOpenProfile] = useState(false);
   const [openSchedule, setOpenSchedule] = useState(false);
+  const [selectedDay, setSelectedDay] = useState('周一');
+  const [weeklyTimeSlots, setWeeklyTimeSlots] = useState({
+    周一: Array(48).fill(false),
+    周二: Array(48).fill(false),
+    周三: Array(48).fill(false),
+    周四: Array(48).fill(false),
+    周五: Array(48).fill(false),
+    周六: Array(48).fill(false),
+    周日: Array(48).fill(false),
+  });
   const [profile, setProfile] = useState({
     name: '王老师',
     title: '副教授',
@@ -102,11 +112,24 @@ const TeacherHome = () => {
     console.log('Reject request:', id);
   };
 
+  const handleTimeSlotClick = (day, index) => {
+    setWeeklyTimeSlots(prev => ({
+      ...prev,
+      [day]: prev[day].map((slot, i) => i === index ? !slot : slot)
+    }));
+  };
+
+  const handleSaveSchedule = () => {
+    // 这里可以添加保存时间表到后端的逻辑
+    console.log('Saving schedule:', weeklyTimeSlots);
+    handleScheduleClose();
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Grid container spacing={3}>
         {/* 左侧栏：个人资料和快捷操作 */}
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2, mb: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Avatar
@@ -163,7 +186,7 @@ const TeacherHome = () => {
         </Grid>
 
         {/* 中间栏：本周课表 */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={8}>
           <Paper sx={{ p: 2, mb: 3 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
               本周课表
@@ -221,10 +244,8 @@ const TeacherHome = () => {
               ))}
             </List>
           </Paper>
-        </Grid>
 
-        {/* 右侧栏：消息中心 */}
-        <Grid item xs={12} md={3}>
+          {/* 消息中心 */}
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
               消息中心
@@ -323,17 +344,67 @@ const TeacherHome = () => {
       </Dialog>
 
       {/* 设置可预约时间对话框 */}
-      <Dialog open={openSchedule} onClose={handleScheduleClose}>
+      <Dialog open={openSchedule} onClose={handleScheduleClose} maxWidth="md" fullWidth>
         <DialogTitle>设置可预约时间</DialogTitle>
         <DialogContent>
-          <Typography variant="subtitle1" sx={{ mt: 2 }}>
-            请选择每周可预约的时间段
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" gutterBottom>
+              选择星期
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+              {Object.keys(weeklyTimeSlots).map((day) => (
+                <Button
+                  key={day}
+                  variant={selectedDay === day ? "contained" : "outlined"}
+                  onClick={() => setSelectedDay(day)}
+                  size="small"
+                >
+                  {day}
+                </Button>
+              ))}
+            </Box>
+          </Box>
+          
+          <Typography variant="subtitle1" gutterBottom>
+            {selectedDay}可预约时间段
           </Typography>
-          {/* 这里可以添加时间选择组件 */}
+          <Grid container spacing={1}>
+            {Array.from({ length: 48 }, (_, index) => {
+              const hour = Math.floor(index / 2);
+              const minute = (index % 2) * 30;
+              const startTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+              const endHour = minute === 30 ? (hour + 1) % 24 : hour;
+              const endMinute = minute === 30 ? '00' : '30';
+              const endTime = `${endHour.toString().padStart(2, '0')}:${endMinute}`;
+              const isSelected = weeklyTimeSlots[selectedDay][index];
+              
+              return (
+                <Grid item xs={6} sm={4} md={3} key={index}>
+                  <Paper
+                    sx={{
+                      p: 1,
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      backgroundColor: isSelected ? 'primary.main' : 'background.paper',
+                      color: isSelected ? 'white' : 'text.primary',
+                      '&:hover': {
+                        backgroundColor: isSelected ? 'primary.dark' : 'action.hover',
+                      },
+                    }}
+                    onClick={() => handleTimeSlotClick(selectedDay, index)}
+                  >
+                    <Typography variant="body2">
+                      {startTime} - {endTime}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              );
+            })}
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleScheduleClose}>取消</Button>
-          <Button onClick={handleScheduleClose} color="primary">
+          <Button onClick={handleSaveSchedule} color="primary">
             保存
           </Button>
         </DialogActions>
@@ -342,4 +413,4 @@ const TeacherHome = () => {
   );
 };
 
-export default TeacherHome; 
+export default TeacherHome;

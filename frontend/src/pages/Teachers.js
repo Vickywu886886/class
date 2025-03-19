@@ -220,7 +220,16 @@ const teachers = [
     languages: ["英语（母语）", "中文（流利）"],
     certificates: ["TESOL", "CELTA"],
     videoUrl: "https://example.com/teacher1",
-    schedule: generateSchedule()
+    schedule: generateSchedule(),
+    price: 200,
+    availableTime: {
+      '2024-03-20': [
+        { start: '09:00', end: '10:00', enabled: true },
+        { start: '10:00', end: '11:00', enabled: true },
+        { start: '14:00', end: '15:00', enabled: true },
+        { start: '15:00', end: '16:00', enabled: true }
+      ]
+    }
   },
   {
     id: 2,
@@ -420,6 +429,11 @@ const Teachers = () => {
   const [selectedTextbook, setSelectedTextbook] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [language, setLanguage] = useState('chinese');
+  const [teachersList, setTeachersList] = useState(teachers);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [openBooking, setOpenBooking] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState(null);
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -536,112 +550,48 @@ const Teachers = () => {
   // 获取当前语言的翻译
   const t = translations[language];
 
-  // 更新预约处理函数
-  const handleBooking = (teacher, day, timeSlot) => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-      setSnackbar({
-        open: true,
-        message: t.notifications.loginRequired,
-        severity: 'warning'
-      });
-      return;
-    }
+  // 更新处理预约请求的函数
+  const handleBooking = () => {
+    if (!selectedTeacher || !selectedTime) return;
 
-    if (!selectedTextbook) {
-      setSnackbar({
-        open: true,
-        message: t.notifications.selectTextbook,
-        severity: 'warning'
-      });
-      return;
-    }
-
-    // 获取当前选择日期的完整信息
-    const selectedDayInfo = getWeekDates().find(d => d.weekDay === day);
-    const selectedDate = selectedDayInfo.date;
-    const today = new Date();
-
-    // 设置今天的日期，去除时间部分
-    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-    // 去除选中日期的时间部分
-    const selectedDateOnly = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
-
-    // 检查是否是今天或之前的日期
-    if (selectedDateOnly <= todayDate) {
-      setSnackbar({
-        open: true,
-        message: t.notifications.cannotBookPast,
-        severity: 'error'
-      });
-      return;
-    }
-
-    const dateStr = `${selectedDayInfo.date.getFullYear()}年${selectedDayInfo.formatted}`;
-
-    // 获取现有预约
-    const existingAppointments = JSON.parse(localStorage.getItem('appointments')) || [];
-
-    // 检查是否已经预约过这个时间段
-    const isTimeSlotBooked = existingAppointments.some(
-      app => app.day === dateStr && app.timeSlot === timeSlot
-    );
-
-    if (isTimeSlotBooked) {
-      setSnackbar({
-        open: true,
-        message: t.notifications.timeSlotBooked,
-        severity: 'error'
-      });
-      return;
-    }
-
-    // 生成 ClassIn 教室信息
-    const classInInfo = generateClassInInfo();
-
-    // 创建新预约
-    const newAppointment = {
-      id: Date.now(),
-      teacherId: teacher.id,
-      teacherName: teacher.name,
-      teacherAvatar: teacher.avatar,
-      teacherType: teacher.type,
-      subject: teacher.subjects[0],
-      textbook: selectedTextbook,
-      day: dateStr,
-      timeSlot,
-      status: 'pending',
-      bookingDate: new Date().toISOString(),
-      classInRoomNumber: classInInfo.roomNumber,
-      classInLink: classInInfo.link
+    // 创建预约请求
+    const bookingRequest = {
+      teacherId: selectedTeacher.id,
+      date: selectedDate.toISOString().split('T')[0],
+      time: selectedTime,
+      studentId: JSON.parse(localStorage.getItem('user')).id
     };
 
-    // 保存预约
-    localStorage.setItem(
-      'appointments',
-      JSON.stringify([...existingAppointments, newAppointment])
-    );
+    // 保存预约请求到localStorage（实际应用中应该发送到后端）
+    const existingRequests = JSON.parse(localStorage.getItem('booking_requests') || '[]');
+    localStorage.setItem('booking_requests', JSON.stringify([...existingRequests, bookingRequest]));
 
-    // 更新教师时间表
-    teacher.schedule[day][timeSlot] = true;
-
-    setSnackbar({
-      open: true,
-      message: t.notifications.bookingSuccess,
-      severity: 'success'
+    // 更新教师的可用时间
+    const updatedTeachers = teachersList.map(teacher => {
+      if (teacher.id === selectedTeacher.id) {
+        const updatedTime = { ...teacher.availableTime };
+        const dateKey = selectedDate.toISOString().split('T')[0];
+        if (updatedTime[dateKey]) {
+          updatedTime[dateKey] = updatedTime[dateKey].map(slot => {
+            if (slot.start === selectedTime.start && slot.end === selectedTime.end) {
+              return { ...slot, enabled: false };
+            }
+            return slot;
+          });
+        }
+        return { ...teacher, availableTime: updatedTime };
+      }
+      return teacher;
     });
+    setTeachersList(updatedTeachers);
 
-    // 重置选中的教材
-    setSelectedTextbook(null);
-
-    // 延迟关闭对话框
-    setTimeout(() => {
-      handleCloseSchedule();
-    }, 1500);
+    // 关闭预约对话框
+    setOpenBooking(false);
+    setSelectedTime(null);
   };
 
-  const filteredTeachers = teachers.filter(teacher => {
+  // 更新过滤教师的逻辑
+  const filteredTeachers = teachersList.filter(teacher => {
     const languages = ['english', 'spanish', 'french'];
     const matchesLanguage = selectedTab === 0 || teacher.type === languages[selectedTab - 1];
     const matchesTeacherType = selectedTeacherType === 'all' || teacher.teacherType === selectedTeacherType;
@@ -649,6 +599,131 @@ const Teachers = () => {
       teacher.subjects.some(subject => subject.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesLanguage && matchesTeacherType && matchesSearch;
   });
+
+  // 渲染预约对话框
+  const renderBookingDialog = () => {
+    const weekDays = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+    const today = new Date();
+    const weekDates = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      return date;
+    });
+
+    return (
+      <Dialog open={openBooking} onClose={() => setOpenBooking(false)} maxWidth="md" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar
+              src={selectedTeacher?.avatar}
+              sx={{ width: 40, height: 40 }}
+            />
+            <Typography variant="h6">
+              {selectedTeacher?.name} 的课程表
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <TableContainer component={Paper} sx={{ borderRadius: '10px' }}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    {weekDays.map((day, index) => (
+                      <TableCell key={day} align="center">
+                        <Box>
+                          <Typography variant="body2" color="textSecondary">
+                            {day}
+                          </Typography>
+                          <Typography variant="body2">
+                            {`${weekDates[index].getMonth() + 1}月${weekDates[index].getDate()}日`}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    {weekDays.map((day, index) => (
+                      <TableCell key={day} sx={{ p: 0 }}>
+                        <Box sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 0.5,
+                          p: 1,
+                          borderBottom: '1px solid #eee'
+                        }}>
+                          {selectedTeacher?.availableTime?.[weekDates[index].toISOString().split('T')[0]]?.map((slot, slotIndex) => (
+                            <Paper
+                              key={slotIndex}
+                              sx={{
+                                p: 1,
+                                textAlign: 'center',
+                                cursor: slot.enabled ? 'pointer' : 'not-allowed',
+                                backgroundColor: slot.enabled ? 'primary.light' : 'grey.200',
+                                color: slot.enabled ? 'white' : 'text.secondary',
+                                '&:hover': {
+                                  backgroundColor: slot.enabled ? 'primary.main' : 'grey.300',
+                                },
+                              }}
+                              onClick={() => slot.enabled && (() => {
+                                setSelectedDate(weekDates[index]);
+                                setSelectedTime(slot);
+                              })()}
+                            >
+                              <Typography variant="body2">
+                                {slot.start} - {slot.end}
+                              </Typography>
+                              <Typography variant="caption" display="block">
+                                {slot.enabled ? '可预约' : '已预约'}
+                              </Typography>
+                            </Paper>
+                          ))}
+                          {(!selectedTeacher?.availableTime?.[weekDates[index].toISOString().split('T')[0]] || 
+                            selectedTeacher.availableTime[weekDates[index].toISOString().split('T')[0]].length === 0) && (
+                            <Typography variant="caption" color="text.secondary" align="center">
+                              无可用时间
+                            </Typography>
+                          )}
+                        </Box>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {selectedTime && (
+              <Box sx={{ mt: 3, p: 2, bgcolor: 'primary.light', borderRadius: 1, color: 'white' }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  已选择时间段：
+                </Typography>
+                <Typography variant="body1">
+                  {selectedDate.toLocaleDateString()} {selectedTime.start} - {selectedTime.end}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setOpenBooking(false);
+            setSelectedTime(null);
+          }}>
+            取消
+          </Button>
+          <Button
+            onClick={handleBooking}
+            color="primary"
+            disabled={!selectedTime}
+          >
+            确认预约
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
 
   // 添加时间段类型判断函数
   const getTimeSlotType = (timeSlot) => {
@@ -1024,7 +1099,10 @@ const Teachers = () => {
                   </IconButton>
                   <Button
                     variant="contained"
-                    onClick={() => handleOpenSchedule(teacher)}
+                    onClick={() => {
+                      setSelectedTeacher(teacher);
+                      setOpenBooking(true);
+                    }}
                     sx={{
                       borderRadius: '20px',
                       bgcolor: languageColors[teacher.type],
@@ -1034,7 +1112,7 @@ const Teachers = () => {
                       }
                     }}
                   >
-                    查看课程
+                    预约课程
                   </Button>
                 </Box>
               </CardContent>
@@ -1266,6 +1344,8 @@ const Teachers = () => {
           </>
         )}
       </Dialog>
+
+      {renderBookingDialog()}
 
       <Snackbar
         open={snackbar.open}

@@ -252,7 +252,7 @@ const Login = () => {
 
     // 根据用户名判断角色
     let role = 'student'; // 默认为学生
-    if (loginForm.username.startsWith('teacher')) {
+    if (loginForm.username === 'sarah.johnson') {
       role = 'teacher';
     } else if (loginForm.username === 'admin') {
       role = 'admin';
@@ -263,7 +263,15 @@ const Login = () => {
     const userInfo = {
       username: loginForm.username,
       role: role,
-      avatar: 'https://randomuser.me/api/portraits/lego/1.jpg'
+      avatar: 'https://randomuser.me/api/portraits/lego/1.jpg',
+      // 为管理员添加额外的菜单项
+      adminMenuItems: role === 'admin' ? [
+        { label: '员工管理', value: 'staff' },
+        { label: '学员管理', value: 'students' },
+        { label: '班级管理', value: 'classes' },
+        { label: '课表管理', value: 'schedule' },
+        { label: '课程订单', value: 'orders' }
+      ] : []
     };
 
     if (rememberMe) {
@@ -384,6 +392,30 @@ const Login = () => {
             }
           }}
         >
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Typography
+              variant="h4"
+              component="div"
+              sx={{
+                color: childFriendlyColors.primary,
+                fontWeight: 600,
+                mb: 1
+              }}
+            >
+              KidNest
+            </Typography>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{
+                color: childFriendlyColors.text,
+                fontWeight: 500
+              }}
+            >
+              童巢优课
+            </Typography>
+          </Box>
+
           <Tabs
             value={isLogin ? 0 : 1}
             onChange={(e, newValue) => setIsLogin(newValue === 0)}
@@ -395,8 +427,7 @@ const Login = () => {
                 fontWeight: 600,
                 minWidth: 120,
                 textTransform: 'none',
-                color: childFriendlyColors.lightText,
-                fontFamily: '"Comic Sans MS", "Comic Sans", cursive'
+                color: childFriendlyColors.lightText
               },
               '& .Mui-selected': {
                 color: childFriendlyColors.primary
@@ -849,6 +880,9 @@ const Login = () => {
         <Box sx={{ textAlign: 'center', mt: 3 }}>
           <Typography variant="body2" color="text.secondary">
             * 这是一个演示版本，输入任意用户名和密码即可登录
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            * 管理员账号：admin / 密码：admin123
           </Typography>
         </Box>
 

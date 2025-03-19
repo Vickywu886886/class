@@ -20,20 +20,35 @@ import {
   Divider,
   Chip
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import SchoolIcon from '@mui/icons-material/School';
 import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import CalendarIcon from '@mui/icons-material/CalendarToday';
+import SettingsIcon from '@mui/icons-material/Settings';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import CloseIcon from '@mui/icons-material/Close';
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('user'));
+
+  // 检查是否在登录页面
+  const isLoginPage = location.pathname === '/login';
+
+  // 如果是登录页面，直接返回内容，不显示导航栏
+  if (isLoginPage) {
+    return <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {children}
+    </Box>;
+  }
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -46,6 +61,19 @@ const Layout = ({ children }) => {
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/login');
+  };
+
+  const handleAvatarChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const updatedUser = { ...user, avatar: reader.result };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        window.location.reload(); // 刷新页面以更新所有组件中的头像
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // 基础菜单项
@@ -64,98 +92,188 @@ const Layout = ({ children }) => {
   // 学生菜单项
   const studentMenuItems = [
     ...baseMenuItems,
-    { text: '个人中心', icon: <PersonIcon />, path: '/profile' },
+    { text: '学习中心', icon: <SchoolIcon />, path: '/student/dashboard' },
+    { text: '个人中心', icon: <PersonIcon />, path: '/student/profile' },
+  ];
+
+  // 管理员菜单项
+  const adminMenuItems = [
+    { text: '教师管理', icon: <SchoolIcon />, path: '/admin/dashboard' },
+    { text: '学生管理', icon: <PersonIcon />, path: '/admin/dashboard' },
+    { text: '课表管理', icon: <CalendarIcon />, path: '/admin/dashboard' },
+    { text: '系统设置', icon: <SettingsIcon />, path: '/admin/dashboard' },
   ];
 
   // 根据用户角色选择菜单项
-  const menuItems = user ? (user.role === 'teacher' ? teacherMenuItems : studentMenuItems) : baseMenuItems;
+  const menuItems = user ? (
+    user.role === 'admin' ? adminMenuItems :
+    user.role === 'teacher' ? teacherMenuItems : 
+    studentMenuItems
+  ) : baseMenuItems;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="static" sx={{ bgcolor: '#4caf50' }}>
+      <AppBar position="fixed" sx={{ 
+        bgcolor: 'white',
+        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+        zIndex: (theme) => theme.zIndex.drawer + 1 
+      }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              onClick={() => setDrawerOpen(true)}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
+            <Box sx={{ position: 'relative', mr: 2 }}>
+              <Avatar
+                alt={user?.username}
+                src={user?.avatar}
+                onClick={handleOpenUserMenu}
+                sx={{ 
+                  width: 40,
+                  height: 40,
+                  bgcolor: user?.role === 'teacher' ? '#2196f3' : '#81c784',
+                  border: '2px solid',
+                  borderColor: user?.role === 'teacher' ? '#2196f3' : '#4caf50',
+                  cursor: 'pointer'
+                }}
+              />
+              {user && (
+                <>
+                  <input
+                    accept="image/*"
+                    type="file"
+                    id="layout-avatar-upload"
+                    onChange={handleAvatarChange}
+                    style={{ display: 'none' }}
+                  />
+                  <label htmlFor="layout-avatar-upload">
+                    <IconButton
+                      component="span"
+                      size="small"
+                      onClick={(e) => e.stopPropagation()}
+                      sx={{
+                        position: 'absolute',
+                        right: -8,
+                        bottom: -8,
+                        bgcolor: user.role === 'teacher' ? '#2196f3' : '#4caf50',
+                        color: 'white',
+                        width: 24,
+                        height: 24,
+                        '&:hover': {
+                          bgcolor: user.role === 'teacher' ? '#1976d2' : '#45a049'
+                        }
+                      }}
+                    >
+                      <PhotoCameraIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </label>
+                </>
+              )}
+            </Box>
 
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ flexGrow: 1, cursor: 'pointer' }}
-              onClick={() => navigate('/')}
-            >
-              KidNest童巢外语
+            <Typography variant="h6" noWrap component="div" sx={{ 
+              flexGrow: 1, 
+              display: 'flex', 
+              alignItems: 'center',
+              color: '#2D5A27',
+              fontWeight: 600
+            }}>
+              {user ? (
+                <>{user.username}</>
+              ) : (
+                <>KidNest童巢优课</>
+              )}
             </Typography>
 
             <Box sx={{ flexGrow: 0 }}>
               {user ? (
                 <>
-                  <Tooltip title="打开设置">
-                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                      <Avatar
-                        alt={user.username}
-                        src={user.avatar}
-                        sx={{ 
-                          bgcolor: user.role === 'teacher' ? '#2196f3' : '#81c784',
-                          border: '2px solid white'
-                        }}
-                      />
-                    </IconButton>
-                  </Tooltip>
-                  <Menu
-                    sx={{ mt: '45px' }}
-                    id="menu-appbar"
-                    anchorEl={anchorElUser}
-                    anchorOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
+                  <Drawer
+                    anchor="left"
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
+                    sx={{
+                      '& .MuiDrawer-paper': {
+                        width: '80vw',
+                        boxSizing: 'border-box',
+                        bgcolor: 'background.paper',
+                        boxShadow: '4px 0 8px rgba(0, 0, 0, 0.1)'
+                      }
+                    }}
                   >
-                    {user.role === 'teacher' ? (
-                      <MenuItem onClick={() => {
-                        navigate('/teacher-profile');
-                        handleCloseUserMenu();
+                    <Box sx={{ 
+                      height: '100%',
+                      width: '100%',
+                      display: 'flex', 
+                      flexDirection: 'column',
+                      p: 3
+                    }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'flex-end',
+                        mb: 2
                       }}>
-                        <SchoolIcon sx={{ mr: 1, color: '#2196f3' }} /> 教师中心
-                      </MenuItem>
-                    ) : (
-                      <MenuItem onClick={() => {
-                        navigate('/profile');
-                        handleCloseUserMenu();
+                        <IconButton onClick={handleCloseUserMenu}>
+                          <CloseIcon />
+                        </IconButton>
+                      </Box>
+                      <Box sx={{ 
+                        flexGrow: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        gap: 2
                       }}>
-                        <PersonIcon sx={{ mr: 1, color: '#4caf50' }} /> 个人中心
+                        {menuItems.map((item) => (
+                          <MenuItem 
+                            key={item.text}
+                            onClick={() => {
+                              navigate(item.path);
+                              handleCloseUserMenu();
+                            }}
+                            sx={{
+                              py: 3,
+                              px: 4,
+                              borderRadius: 2,
+                              '&:hover': {
+                                bgcolor: 'rgba(45, 90, 39, 0.08)'
+                              }
+                            }}
+                          >
+                            {item.icon}
+                            <ListItemText 
+                              primary={item.text} 
+                              sx={{ ml: 2 }}
+                            />
+                          </MenuItem>
+                        ))}
+                      </Box>
+                      <Divider sx={{ my: 2 }} />
+                      <MenuItem 
+                        onClick={handleLogout}
+                        sx={{
+                          py: 3,
+                          px: 4,
+                          borderRadius: 2,
+                          color: '#f44336',
+                          '&:hover': {
+                            bgcolor: 'rgba(244, 67, 54, 0.08)'
+                          }
+                        }}
+                      >
+                        <LogoutIcon sx={{ mr: 2 }} /> 退出登录
                       </MenuItem>
-                    )}
-                    <MenuItem onClick={handleLogout}>
-                      <LogoutIcon sx={{ mr: 1, color: '#f44336' }} /> 退出登录
-                    </MenuItem>
-                  </Menu>
+                    </Box>
+                  </Drawer>
                 </>
               ) : (
                 <Button
-                  color="inherit"
+                  variant="outlined"
                   onClick={() => navigate('/login')}
                   sx={{
                     borderRadius: '20px',
-                    border: '1px solid white',
+                    borderColor: '#4caf50',
+                    color: '#4caf50',
                     '&:hover': {
-                      bgcolor: 'rgba(255, 255, 255, 0.1)'
+                      borderColor: '#45a049',
+                      bgcolor: 'rgba(76, 175, 80, 0.04)'
                     }
                   }}
                 >
@@ -167,6 +285,8 @@ const Layout = ({ children }) => {
         </Container>
       </AppBar>
 
+      <Toolbar /> {/* 添加一个空的Toolbar来占位，防止内容被AppBar遮挡 */}
+
       <Drawer
         anchor="left"
         open={drawerOpen}
@@ -177,43 +297,6 @@ const Layout = ({ children }) => {
           role="presentation"
           onClick={() => setDrawerOpen(false)}
         >
-          {user && (
-            <Box sx={{ 
-              p: 3, 
-              textAlign: 'center',
-              background: user.role === 'teacher' ? 
-                'linear-gradient(135deg, #2196f3 0%, #64b5f6 100%)' : 
-                'linear-gradient(135deg, #4caf50 0%, #81c784 100%)',
-              color: 'white'
-            }}>
-              <Avatar
-                src={user.avatar}
-                sx={{ 
-                  width: 80, 
-                  height: 80, 
-                  margin: '0 auto', 
-                  mb: 2,
-                  border: '3px solid white',
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-                }}
-              />
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {user.username}
-              </Typography>
-              <Chip
-                label={user.role === 'teacher' ? '教师' : '学生'}
-                sx={{ 
-                  mt: 1,
-                  bgcolor: 'rgba(255,255,255,0.9)',
-                  color: user.role === 'teacher' ? '#2196f3' : '#4caf50',
-                  fontWeight: 'bold'
-                }}
-              />
-            </Box>
-          )}
-          
-          <Divider />
-          
           <List sx={{ pt: 2 }}>
             {menuItems.map((item) => (
               <ListItem key={item.text} disablePadding>

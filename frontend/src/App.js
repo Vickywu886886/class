@@ -1,11 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import Layout from './components/Layout';
 
 // 导入学生端页面
 import Home from './pages/Home';
 import Courses from './pages/Courses';
-import Profile from './student/Profile';
+import Profile from './pages/Profile';
+import StudentDashboard from './pages/StudentDashboard';
 
 // 导入教师端页面
 import TeacherDashboard from './teacher/Dashboard';
@@ -57,6 +59,7 @@ const AdminRoute = ({ children }) => {
 function App() {
   return (
     <Router>
+      <Toaster position="top-right" />
       <Layout>
         <Routes>
           {/* 公共路由 */}
@@ -66,6 +69,16 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           {/* 学生端路由 */}
+          <Route
+            path="/student/dashboard"
+            element={
+              <PrivateRoute>
+                <StudentRoute>
+                  <StudentDashboard />
+                </StudentRoute>
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/student/profile"
             element={
@@ -90,6 +103,16 @@ function App() {
           />
           <Route
             path="/teacher/dashboard"
+            element={
+              <PrivateRoute>
+                <TeacherRoute>
+                  <TeacherDashboard />
+                </TeacherRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/teacher-profile"
             element={
               <PrivateRoute>
                 <TeacherRoute>

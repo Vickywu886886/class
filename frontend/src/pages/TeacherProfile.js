@@ -93,14 +93,21 @@ const TeacherProfile = () => {
     hourlyRate: '',
   });
 
-  const defaultTimeSlots = [
-    "09:00-10:00",
-    "10:00-11:00",
-    "11:00-12:00",
-    "14:00-15:00",
-    "15:00-16:00",
-    "16:00-17:00"
-  ];
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const startTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        const endHour = minute === 30 ? (hour + 1) % 24 : hour;
+        const endMinute = minute === 30 ? '00' : '30';
+        const endTime = `${endHour.toString().padStart(2, '0')}:${endMinute}`;
+        slots.push(`${startTime}-${endTime}`);
+      }
+    }
+    return slots;
+  };
+
+  const defaultTimeSlots = generateTimeSlots();
 
   useEffect(() => {
     // 从本地存储加载教师信息
@@ -310,18 +317,16 @@ const TeacherProfile = () => {
 
               <Box sx={{ mt: 3 }}>
                 <Typography variant="h6" gutterBottom>
-                  课程时间表
+                  可用时间设置
                 </Typography>
-                <TableContainer component={Paper}>
-                  <Table>
+                <TableContainer>
+                  <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>时间</TableCell>
+                        <TableCell>时间段</TableCell>
                         {weekDays.map((day) => (
                           <TableCell key={day.toString()} align="center">
-                            {format(day, 'MM/dd', { locale: zhCN })}
-                            <br />
-                            {format(day, 'EEEE', { locale: zhCN })}
+                            {format(day, 'MM/dd EEE', { locale: zhCN })}
                           </TableCell>
                         ))}
                       </TableRow>
@@ -329,16 +334,24 @@ const TeacherProfile = () => {
                     <TableBody>
                       {defaultTimeSlots.map((timeSlot) => (
                         <TableRow key={timeSlot}>
-                          <TableCell>{timeSlot}</TableCell>
+                          <TableCell component="th" scope="row" sx={{ whiteSpace: 'nowrap' }}>
+                            {timeSlot}
+                          </TableCell>
                           {weekDays.map((day) => {
                             const isAvailable = isTimeSlotAvailable(day, timeSlot);
                             return (
                               <TimeSlotCell
-                                key={`${day}-${timeSlot}`}
+                                key={day.toString()}
                                 isAvailable={isAvailable}
                                 onClick={() => handleTimeSlotClick(day, timeSlot)}
+                                sx={{
+                                  backgroundColor: isAvailable ? '#c8e6c9' : '#f5f5f5',
+                                  '&:hover': {
+                                    backgroundColor: isAvailable ? '#a5d6a7' : '#e0e0e0',
+                                  },
+                                }}
                               >
-                                {isAvailable ? '可预约' : '不可预约'}
+                                {isAvailable ? '可用' : ''}
                               </TimeSlotCell>
                             );
                           })}
