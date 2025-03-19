@@ -19,7 +19,8 @@ import {
   Tooltip,
   Menu,
   MenuItem,
-  Avatar
+  Avatar,
+  Paper
 } from '@mui/material';
 import {
   Target as TargetIcon,
@@ -37,6 +38,7 @@ import {
   Person as PersonIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import StudentNav from '../components/StudentNav';
 
 const DashboardCard = ({ title, icon, children, onClick }) => (
   <Card 
@@ -152,197 +154,192 @@ const StudentDashboard = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        mb: 4 
-      }}>
-        <Typography variant="h4" sx={{ color: '#2D5A27', fontWeight: 600 }}>
-          学生仪表盘
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      <StudentNav />
+      <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+        <Typography variant="h6" gutterBottom>
+          学习中心
         </Typography>
-      </Box>
+        <Grid container spacing={3}>
+          {/* 学习计划 */}
+          <Grid item xs={12} md={6}>
+            <DashboardCard title="学习计划" icon="🎯">
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  当前等级：{learningPlan.currentLevel}
+                </Typography>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={learningPlan.progress} 
+                  sx={{ mb: 1 }}
+                />
+                <Typography variant="body2" color="text.secondary">
+                  距离下一等级：{learningPlan.progress}%
+                </Typography>
+              </Box>
+              <List>
+                {learningPlan.tasks.map((task) => (
+                  <ListItem key={task.id}>
+                    <ListItemIcon>
+                      {task.completed ? <CheckCircleIcon color="success" /> : <AccessTimeIcon />}
+                    </ListItemIcon>
+                    <ListItemText primary={task.title} />
+                    <Chip 
+                      label={task.completed ? '已完成' : '待完成'} 
+                      color={task.completed ? 'success' : 'default'} 
+                      size="small"
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </DashboardCard>
+          </Grid>
 
-      <Grid container spacing={3}>
-        {/* 学习计划 */}
-        <Grid item xs={12} md={6}>
-          <DashboardCard title="学习计划" icon="🎯">
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2" gutterBottom>
-                当前等级：{learningPlan.currentLevel}
-              </Typography>
-              <LinearProgress 
-                variant="determinate" 
-                value={learningPlan.progress} 
-                sx={{ mb: 1 }}
-              />
-              <Typography variant="body2" color="text.secondary">
-                距离下一等级：{learningPlan.progress}%
-              </Typography>
-            </Box>
-            <List>
-              {learningPlan.tasks.map((task) => (
-                <ListItem key={task.id}>
-                  <ListItemIcon>
-                    {task.completed ? <CheckCircleIcon color="success" /> : <AccessTimeIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={task.title} />
-                  <Chip 
-                    label={task.completed ? '已完成' : '待完成'} 
-                    color={task.completed ? 'success' : 'default'} 
-                    size="small"
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </DashboardCard>
-        </Grid>
+          {/* 课程资源 */}
+          <Grid item xs={12} md={6}>
+            <DashboardCard title="课程资源" icon="📚">
+              <List>
+                {courseResources.map((resource) => (
+                  <ListItem key={resource.id}>
+                    <ListItemIcon>
+                      <BookIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={resource.title}
+                      secondary={`${resource.type} · 最近访问：${resource.lastAccessed}`}
+                    />
+                    <ListItemSecondaryAction>
+                      <IconButton edge="end">
+                        <ArrowForwardIcon />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                ))}
+              </List>
+            </DashboardCard>
+          </Grid>
 
-        {/* 课程资源 */}
-        <Grid item xs={12} md={6}>
-          <DashboardCard title="课程资源" icon="📚">
-            <List>
-              {courseResources.map((resource) => (
-                <ListItem key={resource.id}>
-                  <ListItemIcon>
-                    <BookIcon />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={resource.title}
-                    secondary={`${resource.type} · 最近访问：${resource.lastAccessed}`}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton edge="end">
-                      <ArrowForwardIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-            </List>
-          </DashboardCard>
-        </Grid>
+          {/* 我的作业 */}
+          <Grid item xs={12} md={6}>
+            <DashboardCard title="我的作业" icon="📝">
+              <List>
+                {homework.map((item) => (
+                  <ListItem key={item.id}>
+                    <ListItemIcon>
+                      <AssignmentIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.title}
+                      secondary={`截止日期：${item.dueDate}`}
+                    />
+                    <Chip 
+                      label={item.status === 'completed' ? '已完成' : '待完成'} 
+                      color={item.status === 'completed' ? 'success' : 'warning'} 
+                      size="small"
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </DashboardCard>
+          </Grid>
 
-        {/* 我的作业 */}
-        <Grid item xs={12} md={6}>
-          <DashboardCard title="我的作业" icon="📝">
-            <List>
-              {homework.map((item) => (
-                <ListItem key={item.id}>
-                  <ListItemIcon>
-                    <AssignmentIcon />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={item.title}
-                    secondary={`截止日期：${item.dueDate}`}
-                  />
-                  <Chip 
-                    label={item.status === 'completed' ? '已完成' : '待完成'} 
-                    color={item.status === 'completed' ? 'success' : 'warning'} 
-                    size="small"
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </DashboardCard>
-        </Grid>
+          {/* 词汇库 */}
+          <Grid item xs={12} md={6}>
+            <DashboardCard title="词汇库" icon="📖">
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  词汇掌握进度
+                </Typography>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={(vocabulary.mastered / vocabulary.total) * 100} 
+                  sx={{ mb: 1 }}
+                />
+                <Typography variant="body2" color="text.secondary">
+                  已掌握 {vocabulary.mastered}/{vocabulary.total} 个单词
+                </Typography>
+              </Box>
+              <List>
+                {vocabulary.recent.map((word, index) => (
+                  <ListItem key={index}>
+                    <ListItemIcon>
+                      <StarIcon color={word.mastered ? 'primary' : 'disabled'} />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={word.word}
+                      secondary={word.meaning}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </DashboardCard>
+          </Grid>
 
-        {/* 词汇库 */}
-        <Grid item xs={12} md={6}>
-          <DashboardCard title="词汇库" icon="📖">
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2" gutterBottom>
-                词汇掌握进度
-              </Typography>
-              <LinearProgress 
-                variant="determinate" 
-                value={(vocabulary.mastered / vocabulary.total) * 100} 
-                sx={{ mb: 1 }}
-              />
-              <Typography variant="body2" color="text.secondary">
-                已掌握 {vocabulary.mastered}/{vocabulary.total} 个单词
-              </Typography>
-            </Box>
-            <List>
-              {vocabulary.recent.map((word, index) => (
-                <ListItem key={index}>
-                  <ListItemIcon>
-                    <StarIcon color={word.mastered ? 'primary' : 'disabled'} />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={word.word}
-                    secondary={word.meaning}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </DashboardCard>
-        </Grid>
+          {/* 测评与自测 */}
+          <Grid item xs={12} md={6}>
+            <DashboardCard title="测评与自测" icon="✅">
+              <List>
+                {assessments.map((assessment) => (
+                  <ListItem key={assessment.id}>
+                    <ListItemIcon>
+                      <QuizIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={assessment.title}
+                      secondary={`${assessment.type} · 日期：${assessment.date}`}
+                    />
+                    <ListItemSecondaryAction>
+                      <Button variant="outlined" size="small">
+                        开始
+                      </Button>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                ))}
+              </List>
+            </DashboardCard>
+          </Grid>
 
-        {/* 测评与自测 */}
-        <Grid item xs={12} md={6}>
-          <DashboardCard title="测评与自测" icon="✅">
-            <List>
-              {assessments.map((assessment) => (
-                <ListItem key={assessment.id}>
-                  <ListItemIcon>
-                    <QuizIcon />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={assessment.title}
-                    secondary={`${assessment.type} · 日期：${assessment.date}`}
-                  />
-                  <ListItemSecondaryAction>
-                    <Button variant="outlined" size="small">
-                      开始
-                    </Button>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-            </List>
-          </DashboardCard>
-        </Grid>
+          {/* 成就与奖励 */}
+          <Grid item xs={12} md={6}>
+            <DashboardCard title="成就与奖励" icon="🏅">
+              <List>
+                {achievements.map((achievement) => (
+                  <ListItem key={achievement.id}>
+                    <ListItemIcon>
+                      <Typography variant="h5">{achievement.icon}</Typography>
+                    </ListItemIcon>
+                    <ListItemText primary={achievement.title} />
+                    <Chip 
+                      label={achievement.unlocked ? '已解锁' : '未解锁'} 
+                      color={achievement.unlocked ? 'success' : 'default'} 
+                      size="small"
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </DashboardCard>
+          </Grid>
 
-        {/* 成就与奖励 */}
-        <Grid item xs={12} md={6}>
-          <DashboardCard title="成就与奖励" icon="🏅">
-            <List>
-              {achievements.map((achievement) => (
-                <ListItem key={achievement.id}>
-                  <ListItemIcon>
-                    <Typography variant="h5">{achievement.icon}</Typography>
-                  </ListItemIcon>
-                  <ListItemText primary={achievement.title} />
-                  <Chip 
-                    label={achievement.unlocked ? '已解锁' : '未解锁'} 
-                    color={achievement.unlocked ? 'success' : 'default'} 
-                    size="small"
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </DashboardCard>
+          {/* 学习反馈 */}
+          <Grid item xs={12} md={6}>
+            <DashboardCard title="学习反馈" icon="🗒️">
+              <List>
+                {feedback.map((item) => (
+                  <ListItem key={item.id}>
+                    <ListItemIcon>
+                      <FeedbackIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.content}
+                      secondary={`${item.teacher} · ${item.date}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </DashboardCard>
+          </Grid>
         </Grid>
-
-        {/* 学习反馈 */}
-        <Grid item xs={12} md={6}>
-          <DashboardCard title="学习反馈" icon="🗒️">
-            <List>
-              {feedback.map((item) => (
-                <ListItem key={item.id}>
-                  <ListItemIcon>
-                    <FeedbackIcon />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={item.content}
-                    secondary={`${item.teacher} · ${item.date}`}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </DashboardCard>
-        </Grid>
-      </Grid>
+      </Paper>
     </Container>
   );
 };

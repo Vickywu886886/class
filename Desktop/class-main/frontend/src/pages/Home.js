@@ -74,6 +74,7 @@ import {
   Comment,
   PersonAdd
 } from '@mui/icons-material';
+import StudentNav from '../components/StudentNav';
 
 // 教师数据
 const teachersData = {
@@ -649,7 +650,8 @@ const Home = () => {
   }, []);
 
   return (
-    <>
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      <StudentNav />
       {/* 年级选择对话框 */}
       <Dialog
         open={gradeDialogOpen}
@@ -2277,7 +2279,7 @@ const Home = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </>
+    </Container>
   );
 };
 

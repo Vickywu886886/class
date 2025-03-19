@@ -70,7 +70,7 @@ const Login = () => {
         if (response.user.role === 'teacher') {
           navigate('/teacher-profile');
         } else if (response.user.role === 'student') {
-          navigate('/student/dashboard');
+          navigate('/teachers');
         } else if (response.user.role === 'admin') {
           navigate('/admin/dashboard');
         } else {

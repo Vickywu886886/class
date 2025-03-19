@@ -26,7 +26,11 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import TranslateIcon from '@mui/icons-material/Translate';
@@ -38,6 +42,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import HomeIcon from '@mui/icons-material/Home';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import PersonIcon from '@mui/icons-material/Person';
+import StudentNav from '../components/StudentNav';
 
 const TeacherCard = styled(Card)(({ type }) => ({
   borderRadius: '20px',
@@ -902,465 +910,460 @@ const Teachers = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{
-          textAlign: 'center',
-          color: '#2e7d32',
-          fontWeight: 'bold',
-          mb: 4
-        }}
-      >
-        {t.pageTitle}
-      </Typography>
-
-      <Box sx={{ mb: 4 }}>
-        <SearchField
-          fullWidth
-          placeholder={t.searchPlaceholder}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon color="action" />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
-
-      <Paper sx={{ mb: 4, borderRadius: '20px' }}>
-        <Tabs
-          value={selectedTab}
-          onChange={handleTabChange}
-          centered
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{
-            '& .MuiTab-root': {
-              minWidth: 120,
-              fontWeight: 'bold',
-            },
-            '& .Mui-selected': {
-              color: '#2e7d32',
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: '#2e7d32',
-            },
-          }}
-        >
-          <Tab
-            icon={<StarIcon />}
-            label={t.tabs.allTeachers}
-            iconPosition="start"
-          />
-          <Tab
-            icon={<Typography variant="body2">{languageIcons.english}</Typography>}
-            label={t.tabs.englishTeachers}
-            iconPosition="start"
-          />
-          <Tab
-            icon={<Typography variant="body2">{languageIcons.spanish}</Typography>}
-            label={t.tabs.spanishTeachers}
-            iconPosition="start"
-          />
-          <Tab
-            icon={<Typography variant="body2">{languageIcons.french}</Typography>}
-            label={t.tabs.frenchTeachers}
-            iconPosition="start"
-          />
-        </Tabs>
-      </Paper>
-
-      {selectedTab !== 0 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4, gap: 2 }}>
-          <Button
-            variant={selectedTeacherType === 'all' ? 'contained' : 'outlined'}
-            onClick={() => setSelectedTeacherType('all')}
-            sx={{
-              borderRadius: '20px',
-              bgcolor: selectedTeacherType === 'all' ? '#4caf50' : 'transparent',
-              '&:hover': {
-                bgcolor: selectedTeacherType === 'all' ? '#388e3c' : 'rgba(76, 175, 80, 0.08)',
-              }
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      <StudentNav />
+      
+      {/* 教师列表内容 */}
+      <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+        <Typography variant="h6" gutterBottom>
+          教师团队
+        </Typography>
+        <Box sx={{ mb: 4 }}>
+          <SearchField
+            fullWidth
+            placeholder={t.searchPlaceholder}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
             }}
-          >
-            {t.teacherTypes.all}
-          </Button>
-          <Button
-            variant={selectedTeacherType === 'chinese' ? 'contained' : 'outlined'}
-            onClick={() => setSelectedTeacherType('chinese')}
-            sx={{
-              borderRadius: '20px',
-              bgcolor: selectedTeacherType === 'chinese' ? '#4caf50' : 'transparent',
-              '&:hover': {
-                bgcolor: selectedTeacherType === 'chinese' ? '#388e3c' : 'rgba(76, 175, 80, 0.08)',
-              }
-            }}
-          >
-            {t.teacherTypes.chinese}
-          </Button>
-          <Button
-            variant={selectedTeacherType === 'foreign' ? 'contained' : 'outlined'}
-            onClick={() => setSelectedTeacherType('foreign')}
-            sx={{
-              borderRadius: '20px',
-              bgcolor: selectedTeacherType === 'foreign' ? '#4caf50' : 'transparent',
-              '&:hover': {
-                bgcolor: selectedTeacherType === 'foreign' ? '#388e3c' : 'rgba(76, 175, 80, 0.08)',
-              }
-            }}
-          >
-            {t.teacherTypes.foreign}
-          </Button>
+          />
         </Box>
-      )}
 
-      <Grid container spacing={3}>
-        {filteredTeachers.map((teacher) => (
-          <Grid item xs={12} sm={6} md={4} key={teacher.id}>
-            <TeacherCard type={teacher.type}>
-              <TeacherTypeChip
-                type={teacher.type}
-                icon={<Typography variant="body2">{languageIcons[teacher.type]}</Typography>}
-                label={`${languageNames[teacher.type].slice(0, -2)}${teacher.teacherType === 'foreign' ? '外教' : '中教'}`}
-                sx={{
-                  backgroundColor: languageColors[teacher.type],
-                }}
-              />
-              <CardContent>
-                <Box sx={{ textAlign: 'center', mb: 2 }}>
-                  <Avatar
-                    src={teacher.avatar}
-                    sx={{
-                      width: 100,
-                      height: 100,
-                      margin: '0 auto',
-                      border: '3px solid',
-                      borderColor: languageColors[teacher.type],
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-                    }}
-                  />
-                  <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>
-                    {teacher.name}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 1 }}>
-                    <Rating value={teacher.rating} precision={0.1} size="small" readOnly />
-                    <Typography variant="body2" color="text.secondary">
-                      ({teacher.students}名学生)
+        <Paper sx={{ mb: 4, borderRadius: '20px' }}>
+          <Tabs
+            value={selectedTab}
+            onChange={handleTabChange}
+            centered
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              '& .MuiTab-root': {
+                minWidth: 120,
+                fontWeight: 'bold',
+              },
+              '& .Mui-selected': {
+                color: '#2e7d32',
+              },
+              '& .MuiTabs-indicator': {
+                backgroundColor: '#2e7d32',
+              },
+            }}
+          >
+            <Tab
+              icon={<StarIcon />}
+              label={t.tabs.allTeachers}
+              iconPosition="start"
+            />
+            <Tab
+              icon={<Typography variant="body2">{languageIcons.english}</Typography>}
+              label={t.tabs.englishTeachers}
+              iconPosition="start"
+            />
+            <Tab
+              icon={<Typography variant="body2">{languageIcons.spanish}</Typography>}
+              label={t.tabs.spanishTeachers}
+              iconPosition="start"
+            />
+            <Tab
+              icon={<Typography variant="body2">{languageIcons.french}</Typography>}
+              label={t.tabs.frenchTeachers}
+              iconPosition="start"
+            />
+          </Tabs>
+        </Paper>
+
+        {selectedTab !== 0 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4, gap: 2 }}>
+            <Button
+              variant={selectedTeacherType === 'all' ? 'contained' : 'outlined'}
+              onClick={() => setSelectedTeacherType('all')}
+              sx={{
+                borderRadius: '20px',
+                bgcolor: selectedTeacherType === 'all' ? '#4caf50' : 'transparent',
+                '&:hover': {
+                  bgcolor: selectedTeacherType === 'all' ? '#388e3c' : 'rgba(76, 175, 80, 0.08)',
+                }
+              }}
+            >
+              {t.teacherTypes.all}
+            </Button>
+            <Button
+              variant={selectedTeacherType === 'chinese' ? 'contained' : 'outlined'}
+              onClick={() => setSelectedTeacherType('chinese')}
+              sx={{
+                borderRadius: '20px',
+                bgcolor: selectedTeacherType === 'chinese' ? '#4caf50' : 'transparent',
+                '&:hover': {
+                  bgcolor: selectedTeacherType === 'chinese' ? '#388e3c' : 'rgba(76, 175, 80, 0.08)',
+                }
+              }}
+            >
+              {t.teacherTypes.chinese}
+            </Button>
+            <Button
+              variant={selectedTeacherType === 'foreign' ? 'contained' : 'outlined'}
+              onClick={() => setSelectedTeacherType('foreign')}
+              sx={{
+                borderRadius: '20px',
+                bgcolor: selectedTeacherType === 'foreign' ? '#4caf50' : 'transparent',
+                '&:hover': {
+                  bgcolor: selectedTeacherType === 'foreign' ? '#388e3c' : 'rgba(76, 175, 80, 0.08)',
+                }
+              }}
+            >
+              {t.teacherTypes.foreign}
+            </Button>
+          </Box>
+        )}
+
+        <Grid container spacing={3}>
+          {filteredTeachers.map((teacher) => (
+            <Grid item xs={12} sm={6} md={4} key={teacher.id}>
+              <TeacherCard type={teacher.type}>
+                <TeacherTypeChip
+                  type={teacher.type}
+                  icon={<Typography variant="body2">{languageIcons[teacher.type]}</Typography>}
+                  label={`${languageNames[teacher.type].slice(0, -2)}${teacher.teacherType === 'foreign' ? '外教' : '中教'}`}
+                  sx={{
+                    backgroundColor: languageColors[teacher.type],
+                  }}
+                />
+                <CardContent>
+                  <Box sx={{ textAlign: 'center', mb: 2 }}>
+                    <Avatar
+                      src={teacher.avatar}
+                      sx={{
+                        width: 100,
+                        height: 100,
+                        margin: '0 auto',
+                        border: '3px solid',
+                        borderColor: languageColors[teacher.type],
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+                      }}
+                    />
+                    <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>
+                      {teacher.name}
                     </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 1 }}>
+                      <Rating value={teacher.rating} precision={0.1} size="small" readOnly />
+                      <Typography variant="body2" color="text.secondary">
+                        ({teacher.students}名学生)
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
 
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    教授课程
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                      教授课程
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {teacher.subjects.map((subject, index) => (
+                        <Chip
+                          key={index}
+                          label={subject}
+                          size="small"
+                          sx={{
+                            bgcolor: `${languageColors[teacher.type]}15`,
+                            color: languageColors[teacher.type]
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                      资质认证
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <VerifiedIcon sx={{ color: languageColors[teacher.type] }} />
+                      <Typography variant="body2">
+                        {teacher.certificates.join(' | ')}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    {teacher.introduction}
+                  </Typography>
+
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                    <IconButton
+                      sx={{ mr: 1 }}
+                      onClick={() => window.open(teacher.videoUrl, '_blank')}
+                    >
+                      <VideocamIcon sx={{ color: languageColors[teacher.type] }} />
+                    </IconButton>
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        setSelectedTeacher(teacher);
+                        setOpenBooking(true);
+                      }}
+                      sx={{
+                        borderRadius: '20px',
+                        bgcolor: languageColors[teacher.type],
+                        '&:hover': {
+                          bgcolor: languageColors[teacher.type],
+                          filter: 'brightness(0.9)'
+                        }
+                      }}
+                    >
+                      预约课程
+                    </Button>
+                  </Box>
+                </CardContent>
+              </TeacherCard>
+            </Grid>
+          ))}
+        </Grid>
+
+        <Dialog
+          open={scheduleDialog.open}
+          onClose={handleCloseSchedule}
+          maxWidth="lg"
+          fullWidth
+        >
+          {scheduleDialog.teacher && (
+            <>
+              <DialogTitle sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                bgcolor: scheduleDialog.teacher ? languageColors[scheduleDialog.teacher.type] : '#4caf50',
+                color: 'white'
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar
+                    src={scheduleDialog.teacher.avatar}
+                    sx={{ width: 40, height: 40, border: '2px solid white' }}
+                  />
+                  <Typography variant="h6">
+                    {scheduleDialog.teacher.name} 的课程表
+                  </Typography>
+                </Box>
+                <IconButton
+                  onClick={handleCloseSchedule}
+                  sx={{ color: 'white' }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </DialogTitle>
+              <DialogContent sx={{ mt: 2 }}>
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    {t.courseInfo}
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {teacher.subjects.map((subject, index) => (
+                    {scheduleDialog.teacher.subjects.map((subject, index) => (
                       <Chip
                         key={index}
                         label={subject}
                         size="small"
                         sx={{
-                          bgcolor: `${languageColors[teacher.type]}15`,
-                          color: languageColors[teacher.type]
+                          bgcolor: `${languageColors[scheduleDialog.teacher.type]}15`,
+                          color: languageColors[scheduleDialog.teacher.type]
                         }}
                       />
                     ))}
                   </Box>
                 </Box>
 
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    资质认证
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <SchoolIcon color="primary" />
+                    {t.selectTextbook}
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <VerifiedIcon sx={{ color: languageColors[teacher.type] }} />
-                    <Typography variant="body2">
-                      {teacher.certificates.join(' | ')}
-                    </Typography>
-                  </Box>
-                </Box>
 
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  {teacher.introduction}
-                </Typography>
-
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                  <IconButton
-                    sx={{ mr: 1 }}
-                    onClick={() => window.open(teacher.videoUrl, '_blank')}
-                  >
-                    <VideocamIcon sx={{ color: languageColors[teacher.type] }} />
-                  </IconButton>
-                  <Button
-                    variant="contained"
-                    onClick={() => {
-                      setSelectedTeacher(teacher);
-                      setOpenBooking(true);
-                    }}
-                    sx={{
-                      borderRadius: '20px',
-                      bgcolor: languageColors[teacher.type],
-                      '&:hover': {
-                        bgcolor: languageColors[teacher.type],
-                        filter: 'brightness(0.9)'
-                      }
-                    }}
-                  >
-                    预约课程
-                  </Button>
-                </Box>
-              </CardContent>
-            </TeacherCard>
-          </Grid>
-        ))}
-      </Grid>
-
-      <Dialog
-        open={scheduleDialog.open}
-        onClose={handleCloseSchedule}
-        maxWidth="lg"
-        fullWidth
-      >
-        {scheduleDialog.teacher && (
-          <>
-            <DialogTitle sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              bgcolor: scheduleDialog.teacher ? languageColors[scheduleDialog.teacher.type] : '#4caf50',
-              color: 'white'
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar
-                  src={scheduleDialog.teacher.avatar}
-                  sx={{ width: 40, height: 40, border: '2px solid white' }}
-                />
-                <Typography variant="h6">
-                  {scheduleDialog.teacher.name} 的课程表
-                </Typography>
-              </Box>
-              <IconButton
-                onClick={handleCloseSchedule}
-                sx={{ color: 'white' }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            <DialogContent sx={{ mt: 2 }}>
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                  {t.courseInfo}
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {scheduleDialog.teacher.subjects.map((subject, index) => (
+                  {/* 添加教材分类筛选 */}
+                  <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     <Chip
-                      key={index}
-                      label={subject}
-                      size="small"
-                      sx={{
-                        bgcolor: `${languageColors[scheduleDialog.teacher.type]}15`,
-                        color: languageColors[scheduleDialog.teacher.type]
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Box>
-
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <SchoolIcon color="primary" />
-                  {t.selectTextbook}
-                </Typography>
-
-                {/* 添加教材分类筛选 */}
-                <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  <Chip
-                    label="全部"
-                    onClick={() => setSelectedCategory('all')}
-                    color={selectedCategory === 'all' ? 'primary' : 'default'}
-                    variant={selectedCategory === 'all' ? 'filled' : 'outlined'}
-                    sx={{ borderRadius: '15px' }}
-                  />
-                  {Array.from(new Set(textbooks[scheduleDialog.teacher.type].map(t => t.category))).map((category) => (
-                    <Chip
-                      key={category}
-                      label={category}
-                      onClick={() => setSelectedCategory(category)}
-                      color={selectedCategory === category ? 'primary' : 'default'}
-                      variant={selectedCategory === category ? 'filled' : 'outlined'}
+                      label="全部"
+                      onClick={() => setSelectedCategory('all')}
+                      color={selectedCategory === 'all' ? 'primary' : 'default'}
+                      variant={selectedCategory === 'all' ? 'filled' : 'outlined'}
                       sx={{ borderRadius: '15px' }}
                     />
-                  ))}
+                    {Array.from(new Set(textbooks[scheduleDialog.teacher.type].map(t => t.category))).map((category) => (
+                      <Chip
+                        key={category}
+                        label={category}
+                        onClick={() => setSelectedCategory(category)}
+                        color={selectedCategory === category ? 'primary' : 'default'}
+                        variant={selectedCategory === category ? 'filled' : 'outlined'}
+                        sx={{ borderRadius: '15px' }}
+                      />
+                    ))}
+                  </Box>
+
+                  <Grid container spacing={2}>
+                    {textbooks[scheduleDialog.teacher.type]
+                      .filter(textbook => selectedCategory === 'all' || textbook.category === selectedCategory)
+                      .sort((a, b) => a.order - b.order)
+                      .map((textbook) => (
+                        <Grid item xs={12} sm={6} md={4} key={textbook.id}>
+                          <Card
+                            onClick={() => setSelectedTextbook(textbook)}
+                            sx={{
+                              cursor: 'pointer',
+                              borderRadius: '15px',
+                              border: selectedTextbook?.id === textbook.id ?
+                                `2px solid ${languageColors[scheduleDialog.teacher.type]}` :
+                                '2px solid transparent',
+                              '&:hover': {
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                transform: 'translateY(-2px)',
+                              },
+                              transition: 'all 0.3s ease',
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column'
+                            }}
+                          >
+                            <CardContent sx={{ flex: 1 }}>
+                              <Box sx={{ mb: 2 }}>
+                                <Typography variant="h6" gutterBottom sx={{ color: languageColors[scheduleDialog.teacher.type] }}>
+                                  {textbook.name}
+                                </Typography>
+                                <Chip
+                                  label={textbook.category}
+                                  size="small"
+                                  sx={{
+                                    bgcolor: `${languageColors[scheduleDialog.teacher.type]}15`,
+                                    color: languageColors[scheduleDialog.teacher.type],
+                                    mb: 1
+                                  }}
+                                />
+                              </Box>
+
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                {textbook.description}
+                              </Typography>
+
+                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
+                                {textbook.features.map((feature, index) => (
+                                  <Chip
+                                    key={index}
+                                    label={feature}
+                                    size="small"
+                                    variant="outlined"
+                                    sx={{ borderColor: `${languageColors[scheduleDialog.teacher.type]}30` }}
+                                  />
+                                ))}
+                              </Box>
+
+                              <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                mt: 'auto'
+                              }}>
+                                <Typography variant="body2" color="text.secondary">
+                                  难度：{textbook.level}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  {textbook.publisher}
+                                </Typography>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))}
+                  </Grid>
                 </Box>
 
-                <Grid container spacing={2}>
-                  {textbooks[scheduleDialog.teacher.type]
-                    .filter(textbook => selectedCategory === 'all' || textbook.category === selectedCategory)
-                    .sort((a, b) => a.order - b.order)
-                    .map((textbook) => (
-                      <Grid item xs={12} sm={6} md={4} key={textbook.id}>
-                        <Card
-                          onClick={() => setSelectedTextbook(textbook)}
-                          sx={{
-                            cursor: 'pointer',
-                            borderRadius: '15px',
-                            border: selectedTextbook?.id === textbook.id ?
-                              `2px solid ${languageColors[scheduleDialog.teacher.type]}` :
-                              '2px solid transparent',
-                            '&:hover': {
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                              transform: 'translateY(-2px)',
-                            },
-                            transition: 'all 0.3s ease',
-                            height: '100%',
-                            display: 'flex',
-                            flexDirection: 'column'
-                          }}
-                        >
-                          <CardContent sx={{ flex: 1 }}>
-                            <Box sx={{ mb: 2 }}>
-                              <Typography variant="h6" gutterBottom sx={{ color: languageColors[scheduleDialog.teacher.type] }}>
-                                {textbook.name}
+                <TableContainer component={Paper} sx={{ borderRadius: '10px' }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                        {getWeekDates().map((dayInfo) => (
+                          <TableCell key={dayInfo.weekDay} align="center">
+                            <Box>
+                              <Typography variant="body2" color="textSecondary">
+                                {dayInfo.weekDay}
                               </Typography>
-                              <Chip
-                                label={textbook.category}
-                                size="small"
-                                sx={{
-                                  bgcolor: `${languageColors[scheduleDialog.teacher.type]}15`,
-                                  color: languageColors[scheduleDialog.teacher.type],
-                                  mb: 1
-                                }}
-                              />
-                            </Box>
-
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                              {textbook.description}
-                            </Typography>
-
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
-                              {textbook.features.map((feature, index) => (
-                                <Chip
-                                  key={index}
-                                  label={feature}
-                                  size="small"
-                                  variant="outlined"
-                                  sx={{ borderColor: `${languageColors[scheduleDialog.teacher.type]}30` }}
-                                />
-                              ))}
-                            </Box>
-
-                            <Box sx={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              mt: 'auto'
-                            }}>
-                              <Typography variant="body2" color="text.secondary">
-                                难度：{textbook.level}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {textbook.publisher}
+                              <Typography variant="body2">
+                                {dayInfo.formatted}
                               </Typography>
                             </Box>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))}
-                </Grid>
-              </Box>
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        {getWeekDates().map((dayInfo) => (
+                          <TableCell key={dayInfo.weekDay} sx={{ p: 0 }}>
+                            <TimeSlotGroup
+                              slots={timeSlots}
+                              dayInfo={dayInfo}
+                              teacher={scheduleDialog.teacher}
+                              handleBooking={handleBooking}
+                            />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
 
-              <TableContainer component={Paper} sx={{ borderRadius: '10px' }}>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                      {getWeekDates().map((dayInfo) => (
-                        <TableCell key={dayInfo.weekDay} align="center">
-                          <Box>
-                            <Typography variant="body2" color="textSecondary">
-                              {dayInfo.weekDay}
-                            </Typography>
-                            <Typography variant="body2">
-                              {dayInfo.formatted}
-                            </Typography>
-                          </Box>
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      {getWeekDates().map((dayInfo) => (
-                        <TableCell key={dayInfo.weekDay} sx={{ p: 0 }}>
-                          <TimeSlotGroup
-                            slots={timeSlots}
-                            dayInfo={dayInfo}
-                            teacher={scheduleDialog.teacher}
-                            handleBooking={handleBooking}
-                          />
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {t.classroomInfo}
+                  </Typography>
+                  <Chip
+                    icon={<VideocamIcon />}
+                    label={t.onlineClassroom}
+                    color="primary"
+                    variant="outlined"
+                    size="small"
+                  />
+                </Box>
 
-              <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  {t.classroomInfo}
-                </Typography>
-                <Chip
-                  icon={<VideocamIcon />}
-                  label={t.onlineClassroom}
-                  color="primary"
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <span>{t.reminders.classReminder}</span>
+                  </Typography>
+                  <Typography variant="body2" color="error" sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                    <span>{t.reminders.cancellationNote}</span>
+                  </Typography>
+                </Box>
+              </DialogContent>
+              <DialogActions sx={{ p: 3 }}>
+                <Button
+                  onClick={handleCloseSchedule}
                   variant="outlined"
-                  size="small"
-                />
-              </Box>
+                  sx={{ borderRadius: '20px' }}
+                >
+                  {t.close}
+                </Button>
+              </DialogActions>
+            </>
+          )}
+        </Dialog>
 
-              <Box sx={{ mt: 3 }}>
-                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <span>{t.reminders.classReminder}</span>
-                </Typography>
-                <Typography variant="body2" color="error" sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                  <span>{t.reminders.cancellationNote}</span>
-                </Typography>
-              </Box>
-            </DialogContent>
-            <DialogActions sx={{ p: 3 }}>
-              <Button
-                onClick={handleCloseSchedule}
-                variant="outlined"
-                sx={{ borderRadius: '20px' }}
-              >
-                {t.close}
-              </Button>
-            </DialogActions>
-          </>
-        )}
-      </Dialog>
+        {renderBookingDialog()}
 
-      {renderBookingDialog()}
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            severity={snackbar.severity}
+            sx={{ width: '100%' }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Paper>
     </Container>
   );
 };

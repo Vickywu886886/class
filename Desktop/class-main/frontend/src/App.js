@@ -6,7 +6,7 @@ import Layout from './components/Layout';
 // 导入学生端页面
 import Home from './pages/Home';
 import Courses from './pages/Courses';
-import Profile from './pages/Profile';
+import StudentProfile from './pages/StudentProfile';
 import StudentDashboard from './pages/StudentDashboard';
 
 // 导入教师端页面
@@ -84,7 +84,7 @@ function App() {
             element={
               <PrivateRoute>
                 <StudentRoute>
-                  <Profile />
+                  <StudentProfile />
                 </StudentRoute>
               </PrivateRoute>
             }

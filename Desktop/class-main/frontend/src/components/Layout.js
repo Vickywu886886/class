@@ -37,6 +37,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -50,11 +51,18 @@ const Layout = ({ children }) => {
     </Box>;
   }
 
+  // 如果是学生用户，只在点击头像时显示导航菜单
+  const isStudent = user?.role === 'student';
+
   const handleOpenUserMenu = (event) => {
+    if (isStudent) {
+      setShowMenu(true);
+    }
     setAnchorElUser(event.currentTarget);
   };
 
   const handleCloseUserMenu = () => {
+    setShowMenu(false);
     setAnchorElUser(null);
   };
 
@@ -185,13 +193,14 @@ const Layout = ({ children }) => {
             <Box sx={{ flexGrow: 0 }}>
               {user ? (
                 <>
-                  <Drawer
-                    anchor="left"
+                  <Menu
+                    anchorEl={anchorElUser}
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
                     sx={{
-                      '& .MuiDrawer-paper': {
+                      '& .MuiPaper-root': {
                         width: '80vw',
+                        maxWidth: '300px',
                         boxSizing: 'border-box',
                         bgcolor: 'background.paper',
                         boxShadow: '4px 0 8px rgba(0, 0, 0, 0.1)'
@@ -214,38 +223,6 @@ const Layout = ({ children }) => {
                           <CloseIcon />
                         </IconButton>
                       </Box>
-                      <Box sx={{ 
-                        flexGrow: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        gap: 2
-                      }}>
-                        {menuItems.map((item) => (
-                          <MenuItem 
-                            key={item.text}
-                            onClick={() => {
-                              navigate(item.path);
-                              handleCloseUserMenu();
-                            }}
-                            sx={{
-                              py: 3,
-                              px: 4,
-                              borderRadius: 2,
-                              '&:hover': {
-                                bgcolor: 'rgba(45, 90, 39, 0.08)'
-                              }
-                            }}
-                          >
-                            {item.icon}
-                            <ListItemText 
-                              primary={item.text} 
-                              sx={{ ml: 2 }}
-                            />
-                          </MenuItem>
-                        ))}
-                      </Box>
-                      <Divider sx={{ my: 2 }} />
                       <MenuItem 
                         onClick={handleLogout}
                         sx={{
@@ -261,7 +238,7 @@ const Layout = ({ children }) => {
                         <LogoutIcon sx={{ mr: 2 }} /> 退出登录
                       </MenuItem>
                     </Box>
-                  </Drawer>
+                  </Menu>
                 </>
               ) : (
                 <Button
@@ -286,49 +263,6 @@ const Layout = ({ children }) => {
       </AppBar>
 
       <Toolbar /> {/* 添加一个空的Toolbar来占位，防止内容被AppBar遮挡 */}
-
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-      >
-        <Box
-          sx={{ width: 250 }}
-          role="presentation"
-          onClick={() => setDrawerOpen(false)}
-        >
-          <List sx={{ pt: 2 }}>
-            {menuItems.map((item) => (
-              <ListItem key={item.text} disablePadding>
-                <ListItemButton
-                  onClick={() => navigate(item.path)}
-                  sx={{
-                    mx: 1,
-                    borderRadius: '10px',
-                    '&:hover': {
-                      bgcolor: user?.role === 'teacher' ? '#e3f2fd' : '#e8f5e9',
-                    }
-                  }}
-                >
-                  <ListItemIcon sx={{ 
-                    color: user?.role === 'teacher' ? '#2196f3' : '#4caf50'
-                  }}>
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={item.text}
-                    sx={{
-                      '& .MuiTypography-root': {
-                        fontWeight: 'bold'
-                      }
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </Drawer>
 
       <Box component="main" sx={{ flexGrow: 1, bgcolor: '#f5f5f5', minHeight: '100vh' }}>
         {children}
