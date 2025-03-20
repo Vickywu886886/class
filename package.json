@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.8",
+    "@mui/material": "^6.4.8",
+<<<<<<< HEAD
+    "axios": "^1.8.4",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+=======
+    "axios": "^1.8.3",
+>>>>>>> 417a01e2b58f8c81056a4604f9083ae808e8bcfc
+    "react-router-dom": "^7.3.0"
+  }
+}
