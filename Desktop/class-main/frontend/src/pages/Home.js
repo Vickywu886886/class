@@ -1478,12 +1478,12 @@ const Home = () => {
             {/* 教师卡片列表 */}
             <Grid container spacing={3}>
               {isLoading ? (
-                <Box sx={{ 
-                  width: '100%', 
-                  display: 'flex', 
-                  justifyContent: 'center', 
+                <Box sx={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
                   alignItems: 'center',
-                  py: 4 
+                  py: 4
                 }}>
                   <CircularProgress sx={{ color: '#2D5A27' }} />
                 </Box>
@@ -1586,10 +1586,10 @@ const Home = () => {
                   </Grid>
                 ))
               ) : (
-                <Box sx={{ 
-                  width: '100%', 
-                  textAlign: 'center', 
-                  py: 8 
+                <Box sx={{
+                  width: '100%',
+                  textAlign: 'center',
+                  py: 8
                 }}>
                   <SupportAgent sx={{ fontSize: 60, color: '#2D5A27', mb: 2 }} />
                   <Typography variant="h6" sx={{ color: '#2D5A27' }}>

@@ -11,7 +11,12 @@ import StudentDashboard from './pages/StudentDashboard';
 
 // 导入教师端页面
 import TeacherDashboard from './teacher/Dashboard';
-import TeacherHome from './teacher/Home';
+import TeacherStudents from './teacher/Students';
+import TeacherAssignments from './teacher/Assignments';
+import TeacherProfile from './teacher/Profile';
+import TeacherAvailability from './teacher/Availability';
+import TeacherCourses from './teacher/Courses';
+import TeacherSettings from './teacher/Settings';
 
 // 导入管理端页面
 import AdminDashboard from './admin/Dashboard';
@@ -93,13 +98,7 @@ function App() {
           {/* 教师端路由 */}
           <Route
             path="/teacher"
-            element={
-              <PrivateRoute>
-                <TeacherRoute>
-                  <TeacherHome />
-                </TeacherRoute>
-              </PrivateRoute>
-            }
+            element={<Navigate to="/teacher/dashboard" replace />}
           />
           <Route
             path="/teacher/dashboard"
@@ -112,17 +111,71 @@ function App() {
             }
           />
           <Route
-            path="/teacher-profile"
+            path="/teacher/students"
             element={
               <PrivateRoute>
                 <TeacherRoute>
-                  <TeacherDashboard />
+                  <TeacherStudents />
+                </TeacherRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/teacher/assignments"
+            element={
+              <PrivateRoute>
+                <TeacherRoute>
+                  <TeacherAssignments />
+                </TeacherRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/teacher/profile"
+            element={
+              <PrivateRoute>
+                <TeacherRoute>
+                  <TeacherProfile />
+                </TeacherRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/teacher/availability"
+            element={
+              <PrivateRoute>
+                <TeacherRoute>
+                  <TeacherAvailability />
+                </TeacherRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/teacher/courses"
+            element={
+              <PrivateRoute>
+                <TeacherRoute>
+                  <TeacherCourses />
+                </TeacherRoute>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/teacher/settings"
+            element={
+              <PrivateRoute>
+                <TeacherRoute>
+                  <TeacherSettings />
                 </TeacherRoute>
               </PrivateRoute>
             }
           />
 
           {/* 管理端路由 */}
+          <Route
+            path="/admin"
+            element={<Navigate to="/admin/dashboard" replace />}
+          />
           <Route
             path="/admin/dashboard"
             element={

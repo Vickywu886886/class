@@ -41,8 +41,8 @@ import { useNavigate } from 'react-router-dom';
 import StudentNav from '../components/StudentNav';
 
 const DashboardCard = ({ title, icon, children, onClick }) => (
-  <Card 
-    sx={{ 
+  <Card
+    sx={{
       height: '100%',
       cursor: 'pointer',
       transition: 'transform 0.2s',
@@ -142,11 +142,11 @@ const StudentDashboard = () => {
 
   if (!user) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh' 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh'
       }}>
         <span>加载中...</span>
       </Box>
@@ -168,9 +168,9 @@ const StudentDashboard = () => {
                 <Typography variant="subtitle2" gutterBottom>
                   当前等级：{learningPlan.currentLevel}
                 </Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={learningPlan.progress} 
+                <LinearProgress
+                  variant="determinate"
+                  value={learningPlan.progress}
                   sx={{ mb: 1 }}
                 />
                 <Typography variant="body2" color="text.secondary">
@@ -184,9 +184,9 @@ const StudentDashboard = () => {
                       {task.completed ? <CheckCircleIcon color="success" /> : <AccessTimeIcon />}
                     </ListItemIcon>
                     <ListItemText primary={task.title} />
-                    <Chip 
-                      label={task.completed ? '已完成' : '待完成'} 
-                      color={task.completed ? 'success' : 'default'} 
+                    <Chip
+                      label={task.completed ? '已完成' : '待完成'}
+                      color={task.completed ? 'success' : 'default'}
                       size="small"
                     />
                   </ListItem>
@@ -204,7 +204,7 @@ const StudentDashboard = () => {
                     <ListItemIcon>
                       <BookIcon />
                     </ListItemIcon>
-                    <ListItemText 
+                    <ListItemText
                       primary={resource.title}
                       secondary={`${resource.type} · 最近访问：${resource.lastAccessed}`}
                     />
@@ -228,13 +228,13 @@ const StudentDashboard = () => {
                     <ListItemIcon>
                       <AssignmentIcon />
                     </ListItemIcon>
-                    <ListItemText 
+                    <ListItemText
                       primary={item.title}
                       secondary={`截止日期：${item.dueDate}`}
                     />
-                    <Chip 
-                      label={item.status === 'completed' ? '已完成' : '待完成'} 
-                      color={item.status === 'completed' ? 'success' : 'warning'} 
+                    <Chip
+                      label={item.status === 'completed' ? '已完成' : '待完成'}
+                      color={item.status === 'completed' ? 'success' : 'warning'}
                       size="small"
                     />
                   </ListItem>
@@ -250,9 +250,9 @@ const StudentDashboard = () => {
                 <Typography variant="subtitle2" gutterBottom>
                   词汇掌握进度
                 </Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={(vocabulary.mastered / vocabulary.total) * 100} 
+                <LinearProgress
+                  variant="determinate"
+                  value={(vocabulary.mastered / vocabulary.total) * 100}
                   sx={{ mb: 1 }}
                 />
                 <Typography variant="body2" color="text.secondary">
@@ -265,7 +265,7 @@ const StudentDashboard = () => {
                     <ListItemIcon>
                       <StarIcon color={word.mastered ? 'primary' : 'disabled'} />
                     </ListItemIcon>
-                    <ListItemText 
+                    <ListItemText
                       primary={word.word}
                       secondary={word.meaning}
                     />
@@ -284,7 +284,7 @@ const StudentDashboard = () => {
                     <ListItemIcon>
                       <QuizIcon />
                     </ListItemIcon>
-                    <ListItemText 
+                    <ListItemText
                       primary={assessment.title}
                       secondary={`${assessment.type} · 日期：${assessment.date}`}
                     />
@@ -309,9 +309,9 @@ const StudentDashboard = () => {
                       <Typography variant="h5">{achievement.icon}</Typography>
                     </ListItemIcon>
                     <ListItemText primary={achievement.title} />
-                    <Chip 
-                      label={achievement.unlocked ? '已解锁' : '未解锁'} 
-                      color={achievement.unlocked ? 'success' : 'default'} 
+                    <Chip
+                      label={achievement.unlocked ? '已解锁' : '未解锁'}
+                      color={achievement.unlocked ? 'success' : 'default'}
                       size="small"
                     />
                   </ListItem>
@@ -329,7 +329,7 @@ const StudentDashboard = () => {
                     <ListItemIcon>
                       <FeedbackIcon />
                     </ListItemIcon>
-                    <ListItemText 
+                    <ListItemText
                       primary={item.content}
                       secondary={`${item.teacher} · ${item.date}`}
                     />

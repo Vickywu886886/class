@@ -45,10 +45,10 @@ const StudentProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  
+
   // 从 localStorage 获取用户信息
   const user = JSON.parse(localStorage.getItem('user'));
-  
+
   const [userInfo, setUserInfo] = useState({
     name: user?.name || '张三',
     englishName: user?.englishName || 'Zhang San',
@@ -166,33 +166,33 @@ const StudentProfile = () => {
           console.log('开始更新头像...');
           const response = await updateAvatar(newAvatar);
           console.log('头像更新响应:', response);
-          
+
           if (!response || !response.user) {
             throw new Error('服务器响应格式不正确');
           }
-          
+
           // 更新本地状态
           setUserInfo(prevState => ({
             ...prevState,
             avatar: newAvatar
           }));
-          
+
           // 从 localStorage 获取最新的用户信息
           const currentUser = JSON.parse(localStorage.getItem('user'));
-          
+
           // 更新 localStorage 中的用户信息
           const updatedUser = {
             ...currentUser,
             avatar: newAvatar
           };
           localStorage.setItem('user', JSON.stringify(updatedUser));
-          
+
           setSnackbar({
             open: true,
             message: '头像更新成功！',
             severity: 'success'
           });
-          
+
           // 等待一小段时间后再刷新页面，确保数据已保存
           setTimeout(() => {
             window.location.reload();
@@ -462,8 +462,8 @@ const StudentProfile = () => {
             <Grid container spacing={2}>
               {myCourses.map((course) => (
                 <Grid item xs={12} key={course.id}>
-                  <Paper 
-                    sx={{ 
+                  <Paper
+                    sx={{
                       p: 2,
                       display: 'flex',
                       alignItems: 'center',
@@ -476,9 +476,9 @@ const StudentProfile = () => {
                   >
                     <Avatar
                       src={course.teacherAvatar}
-                      sx={{ 
-                        width: 60, 
-                        height: 60, 
+                      sx={{
+                        width: 60,
+                        height: 60,
                         mr: 2,
                         border: '2px solid #e8f5e9'
                       }}
@@ -537,10 +537,10 @@ const StudentProfile = () => {
             <Grid container spacing={2}>
               {followedTeachers.map((teacher) => (
                 <Grid item xs={12} sm={6} md={4} key={teacher.id}>
-                  <Paper 
-                    sx={{ 
-                      p: 2, 
-                      display: 'flex', 
+                  <Paper
+                    sx={{
+                      p: 2,
+                      display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       '&:hover': {
@@ -552,9 +552,9 @@ const StudentProfile = () => {
                   >
                     <Avatar
                       src={teacher.avatar}
-                      sx={{ 
-                        width: 80, 
-                        height: 80, 
+                      sx={{
+                        width: 80,
+                        height: 80,
                         mb: 1,
                         border: '2px solid #e8f5e9'
                       }}
@@ -565,11 +565,11 @@ const StudentProfile = () => {
                     <Typography variant="subtitle2" color="primary" sx={{ mb: 1 }}>
                       {teacher.subject}
                     </Typography>
-                    <Typography 
-                      variant="body2" 
-                      color="text.secondary" 
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
                       align="center"
-                      sx={{ 
+                      sx={{
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',

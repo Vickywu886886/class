@@ -39,17 +39,17 @@ const StudentNav = () => {
   };
 
   return (
-    <Paper 
-      sx={{ 
-        p: 2, 
+    <Paper
+      sx={{
+        p: 2,
         mb: 3,
         borderRadius: '20px',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
         background: 'linear-gradient(to right, rgba(46, 125, 50, 0.02), rgba(46, 125, 50, 0.05))'
       }}
     >
-      <Box sx={{ 
-        display: 'flex', 
+      <Box sx={{
+        display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         flexWrap: 'wrap',

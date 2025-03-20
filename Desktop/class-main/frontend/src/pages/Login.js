@@ -11,8 +11,7 @@ import {
   IconButton,
   InputAdornment,
   FormControlLabel,
-  Checkbox,
-  Link
+  Checkbox
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -221,25 +220,6 @@ const Login = () => {
             >
               登录
             </Button>
-            <Box sx={{ textAlign: 'center', mt: 2 }}>
-              <Typography variant="body2" sx={{ color: theme.lightText }}>
-                还没有账号？
-                <Link
-                  href="/register"
-                  sx={{
-                    ml: 1,
-                    color: theme.primary,
-                    textDecoration: 'none',
-                    '&:hover': {
-                      color: theme.secondary,
-                      textDecoration: 'underline'
-                    }
-                  }}
-                >
-                  立即注册
-                </Link>
-              </Typography>
-            </Box>
           </Box>
         </Paper>
       </Box>
@@ -248,7 +228,6 @@ const Login = () => {
         open={!!error}
         autoHideDuration={6000}
         onClose={() => setError('')}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert onClose={() => setError('')} severity="error" sx={{ width: '100%' }}>
           {error}
@@ -259,7 +238,6 @@ const Login = () => {
         open={!!success}
         autoHideDuration={6000}
         onClose={() => setSuccess('')}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert onClose={() => setSuccess('')} severity="success" sx={{ width: '100%' }}>
           {success}

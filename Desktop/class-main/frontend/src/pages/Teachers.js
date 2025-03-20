@@ -688,12 +688,12 @@ const Teachers = () => {
                               </Typography>
                             </Paper>
                           ))}
-                          {(!selectedTeacher?.availableTime?.[weekDates[index].toISOString().split('T')[0]] || 
+                          {(!selectedTeacher?.availableTime?.[weekDates[index].toISOString().split('T')[0]] ||
                             selectedTeacher.availableTime[weekDates[index].toISOString().split('T')[0]].length === 0) && (
-                            <Typography variant="caption" color="text.secondary" align="center">
-                              无可用时间
-                            </Typography>
-                          )}
+                              <Typography variant="caption" color="text.secondary" align="center">
+                                无可用时间
+                              </Typography>
+                            )}
                         </Box>
                       </TableCell>
                     ))}
@@ -780,8 +780,8 @@ const Teachers = () => {
                 fontWeight: isBooked ? 'bold' : 'normal',
                 cursor: isDisabled || isBooked ? 'not-allowed' : 'pointer',
                 border: `1px solid ${isDisabled ? '#f5f5f5' :
-                    isBooked ? `${languageColors[teacher.type]}30` :
-                      timeType === 'day' ? 'rgba(255, 167, 38, 0.1)' : 'rgba(63, 81, 181, 0.1)'
+                  isBooked ? `${languageColors[teacher.type]}30` :
+                    timeType === 'day' ? 'rgba(255, 167, 38, 0.1)' : 'rgba(63, 81, 181, 0.1)'
                   }`,
                 '&:hover': {
                   bgcolor: !isDisabled && !isBooked ?
@@ -912,7 +912,7 @@ const Teachers = () => {
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       <StudentNav />
-      
+
       {/* 教师列表内容 */}
       <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
         <Typography variant="h6" gutterBottom>

@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # Configure app
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///education_platform.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
@@ -25,7 +25,7 @@ migrate.init_app(app, db)
 # Configure CORS
 cors.init_app(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003"],
+        "origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:3004"],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
@@ -53,22 +53,9 @@ app.register_blueprint(admin_bp, url_prefix='/api/admin')
 def index():
     return jsonify({"message": "Welcome to the Education Platform API"})
 
-# Create database tables and add default teacher
+# Create database tables
 with app.app_context():
     db.create_all()
-    # Check if default teacher exists
-    default_teacher = User.query.filter_by(email='teacher1@example.com').first()
-    if not default_teacher:
-        teacher = User(
-            username='teacher1',
-            email='teacher1@example.com',
-            role='teacher',
-            created_at=datetime.utcnow()
-        )
-        teacher.set_password('password123')
-        db.session.add(teacher)
-        db.session.commit()
-        print('Default teacher account created successfully!')
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001) 
+    app.run(debug=True, port=3004) 
